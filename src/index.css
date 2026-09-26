@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: #070913;
+    color: #f1f5f9;
+    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* Custom elegant scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #070913;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #241a38;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #e05a88aa;
+  }
+}
+
+/* Atmospheric Glassmorphism */
+.vault-glass {
+  background: rgba(12, 15, 32, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(224, 90, 136, 0.18);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.vault-glass-subtle {
+  background: rgba(12, 15, 32, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.vault-card {
+  background: radial-gradient(circle at 50% 0%, rgba(36, 26, 56, 0.5) 0%, rgba(12, 15, 32, 0.8) 100%);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Shimmer & Glows */
+.text-shimmer {
+  background: linear-gradient(135deg, #ffffff 0%, #ffcad4 50%, #e8a598 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-shimmer-gold {
+  background: linear-gradient(135deg, #fff5eb 0%, #e8a598 60%, #b37365 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glow-heart {
+  filter: drop-shadow(0 0 12px rgba(224, 90, 136, 0.65));
+}
+
+.glow-star {
+  filter: drop-shadow(0 0 10px rgba(253, 251, 247, 0.8));
+}
+
+/* Film Roll Perforations */
+.film-perforation {
+  background-image: radial-gradient(#070913 40%, transparent 45%);
+  background-size: 16px 16px;
+  background-position: center;
+}
+
+/* Polaroid tape / pin effect */
+.polaroid-frame {
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Soft ambient bloom background */
+.radial-bloom-rose {
+  background: radial-gradient(circle at center, rgba(224, 90, 136, 0.15) 0%, transparent 70%);
+}
+
+.radial-bloom-violet {
+  background: radial-gradient(circle at center, rgba(157, 114, 255, 0.15) 0%, transparent 70%);
+}
