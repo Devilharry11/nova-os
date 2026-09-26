@@ -42,7 +42,9 @@ export const InstaMusicPlayer: React.FC = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(insta?.volume ?? 0.7);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(() => {
+    return typeof window !== 'undefined' ? window.innerWidth < 640 : false;
+  });
   const [hasInteracted, setHasInteracted] = useState(false);
 
   // Custom song form in picker modal

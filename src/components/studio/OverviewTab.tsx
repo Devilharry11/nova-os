@@ -24,14 +24,23 @@ interface OverviewTabProps {
 }
 
 export const OverviewTab: React.FC<OverviewTabProps> = ({ onSelectTab, onOpenPreview }) => {
-  const { config, updateConfig, resetToDefaults, updateHostPin } = useExperience();
+  const { config, updateConfig, resetToDefaults, updateHostPin, generatePartnerShareLink } = useExperience();
   const [copied, setCopied] = useState(false);
+  const [copiedPartner, setCopiedPartner] = useState(false);
 
   const handleCopyLink = () => {
     vaultAudio.playHeartCollect();
     navigator.clipboard.writeText(window.location.href);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyPartnerLink = () => {
+    vaultAudio.playHeartCollect();
+    const partnerLink = generatePartnerShareLink();
+    navigator.clipboard.writeText(partnerLink);
+    setCopiedPartner(true);
+    setTimeout(() => setCopiedPartner(false), 2500);
   };
 
   return (
@@ -78,6 +87,27 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ onSelectTab, onOpenPre
                 onChange={(e) => updateConfig({ coupleNames: e.target.value })}
                 className="w-full p-3 rounded-xl bg-midnight-950/80 border border-white/10 text-white text-sm font-sans focus:outline-none focus:border-rose-400"
               />
+            </div>
+
+            {/* Partner Share Link Card (Solves Cross-Device Sync) */}
+            <div className="sm:col-span-2 p-5 rounded-2xl bg-gradient-to-r from-rose-950/50 via-midnight-950 to-violet-950/50 border border-rose-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg shadow-rose-950/20">
+              <div className="space-y-1">
+                <span className="text-xs font-sans font-medium text-rose-300 flex items-center gap-1.5 uppercase tracking-wider">
+                  <Share2 className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Send to Partner (Cross-Device Link)</span>
+                </span>
+                <p className="text-xs text-slate-300 font-light max-w-md leading-relaxed">
+                  Click below to get a personalized shareable link that embeds all your custom photos, quiz questions, love letter, and playlist for your partner's phone!
+                </p>
+              </div>
+
+              <button
+                onClick={handleCopyPartnerLink}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-violet-600 hover:from-rose-600 hover:to-violet-700 text-white text-xs font-sans font-medium uppercase tracking-wider shadow-glow-rose hover:scale-[1.02] active:scale-[0.98] transition-all shrink-0"
+              >
+                {copiedPartner ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Share2 className="w-3.5 h-3.5" />}
+                <span>{copiedPartner ? 'Partner Link Copied!' : 'Copy Partner Link 🎁'}</span>
+              </button>
             </div>
 
             {/* Host Private PIN Code */}

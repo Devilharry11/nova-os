@@ -8,7 +8,7 @@ import { TiltCard } from '../common/TiltCard';
 import { triggerFireworks } from '../../utils/celebration';
 
 export const ScreenFinalSecret: React.FC = () => {
-  const { config, restartExperience, setViewMode, isHostAuthenticated } = useExperience();
+  const { config, restartExperience, setViewMode, isHostAuthenticated, generatePartnerShareLink } = useExperience();
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -23,7 +23,8 @@ export const ScreenFinalSecret: React.FC = () => {
 
   const handleCopyLink = () => {
     vaultAudio.playHeartCollect();
-    navigator.clipboard.writeText(window.location.href);
+    const link = generatePartnerShareLink ? generatePartnerShareLink() : window.location.href;
+    navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

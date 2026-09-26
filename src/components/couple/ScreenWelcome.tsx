@@ -7,11 +7,11 @@ import { CinematicTypography } from '../common/CinematicTypography';
 import { TiltCard } from '../common/TiltCard';
 
 export const ScreenWelcome: React.FC = () => {
-  const { config, setScreen } = useExperience();
+  const { config, setScreen, setIsInstaPlaying } = useExperience();
 
   const handleStart = () => {
     vaultAudio.playHeartCollect();
-    vaultAudio.startAmbient();
+    setIsInstaPlaying(true);
     setScreen('questions');
   };
 

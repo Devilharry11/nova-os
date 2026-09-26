@@ -54,6 +54,11 @@ interface ExperienceContextType {
   lockHost: () => void;
   updateHostPin: (newPin: string) => void;
 
+  // Partner Sharing & Sync
+  generatePartnerShareLink: () => string;
+  partnerWelcomeMessage: string | null;
+  clearPartnerWelcomeMessage: () => void;
+
   // Navigation & Couple Experience State
   viewMode: 'couple' | 'studio';
   setViewMode: (mode: 'couple' | 'studio') => void;
@@ -74,8 +79,62 @@ const HOST_AUTH_KEY = 'heart_vault_host_auth_token_v1';
 const ExperienceContext = createContext<ExperienceContextType | null>(null);
 
 export const ExperienceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Load config from localStorage with safe fallback merging
+  const [partnerWelcomeMessage, setPartnerWelcomeMessage] = useState<string | null>(null);
+
+  // Load config from URL (?vault=...) or localStorage with safe fallback merging
   const [config, setConfig] = useState<ExperienceConfig>(() => {
+    // 1. Check if partner opened a shared vault link
+    try {
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        let vaultParam = urlParams.get('vault');
+        if (!vaultParam && window.location.hash.startsWith('#vault=')) {
+          vaultParam = window.location.hash.replace('#vault=', '');
+        }
+
+        if (vaultParam) {
+          try {
+            const decodedJson = decodeURIComponent(atob(vaultParam));
+            const parsed = JSON.parse(decodedJson);
+            if (parsed && typeof parsed === 'object') {
+              const merged: ExperienceConfig = {
+                ...DEFAULT_EXPERIENCE,
+                ...parsed,
+                music: { ...DEFAULT_EXPERIENCE.music, ...(parsed.music || {}) },
+                video: { ...DEFAULT_EXPERIENCE.video, ...(parsed.video || {}) },
+                instaMusic: {
+                  ...DEFAULT_EXPERIENCE.instaMusic,
+                  ...(parsed.instaMusic || {}),
+                  tracks: parsed.instaMusic?.tracks && parsed.instaMusic.tracks.length > 0
+                    ? parsed.instaMusic.tracks
+                    : DEFAULT_EXPERIENCE.instaMusic.tracks,
+                },
+                hostSecurity: {
+                  ...DEFAULT_EXPERIENCE.hostSecurity,
+                  ...(parsed.hostSecurity || {}),
+                },
+                typography: parsed.typography && parsed.typography.length > 0 
+                  ? parsed.typography 
+                  : DEFAULT_EXPERIENCE.typography,
+              };
+
+              // Automatically cache on partner's device
+              try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+                // Clean URL query param cleanly without refresh
+                window.history.replaceState({}, document.title, window.location.pathname);
+              } catch {}
+
+              return merged;
+            }
+          } catch {
+            // Ignored
+          }
+        }
+      }
+    } catch {}
+
+    // 2. Load from localStorage
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -374,6 +433,24 @@ export const ExperienceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setCurrentScreen(screen);
   };
 
+  const generatePartnerShareLink = (): string => {
+    try {
+      // Omit hostSecurity pin for security so partner cannot alter admin pin
+      const { hostSecurity, ...safeConfig } = config;
+      const jsonStr = JSON.stringify(safeConfig);
+      const encoded = btoa(encodeURIComponent(jsonStr));
+      const origin = window.location.origin;
+      const pathname = window.location.pathname;
+      return `${origin}${pathname}?vault=${encoded}`;
+    } catch {
+      return window.location.href;
+    }
+  };
+
+  const clearPartnerWelcomeMessage = () => {
+    setPartnerWelcomeMessage(null);
+  };
+
   return (
     <ExperienceContext.Provider
       value={{
@@ -412,6 +489,10 @@ export const ExperienceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         authenticateHost,
         lockHost,
         updateHostPin,
+        // Partner Sharing & Sync
+        generatePartnerShareLink,
+        partnerWelcomeMessage,
+        clearPartnerWelcomeMessage,
         // Navigation & Journey
         viewMode,
         setViewMode,
