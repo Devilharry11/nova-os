@@ -14,7 +14,8 @@ import type {
   TimelineMilestone,
   LoveReason,
   BucketListItem,
-  ChatGptSurpriseConfig
+  ChatGptSurpriseConfig,
+  OpenWhenEnvelope
 } from '../types/heartVault';
 import { DEFAULT_EXPERIENCE } from '../data/defaultExperience';
 import { vaultAudio } from '../utils/vaultAudio';
@@ -51,6 +52,11 @@ interface ExperienceContextType {
   toggleBucketItem: (id: string) => void;
   addBucketItem: (item: BucketListItem) => void;
   deleteBucketItem: (id: string) => void;
+
+  // Open When Envelopes
+  updateOpenWhenEnvelope: (env: OpenWhenEnvelope) => void;
+  addOpenWhenEnvelope: (env: OpenWhenEnvelope) => void;
+  deleteOpenWhenEnvelope: (id: string) => void;
 
   // ChatGPT AI Surprise
   updateChatGpt: (patch: Partial<ChatGptSurpriseConfig>) => void;
@@ -136,6 +142,7 @@ export const ExperienceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
                 timeline: parsed.timeline && parsed.timeline.length > 0 ? parsed.timeline : DEFAULT_EXPERIENCE.timeline,
                 loveReasons: parsed.loveReasons && parsed.loveReasons.length > 0 ? parsed.loveReasons : DEFAULT_EXPERIENCE.loveReasons,
                 bucketList: parsed.bucketList && parsed.bucketList.length > 0 ? parsed.bucketList : DEFAULT_EXPERIENCE.bucketList,
+                openWhen: parsed.openWhen && parsed.openWhen.length > 0 ? parsed.openWhen : DEFAULT_EXPERIENCE.openWhen,
                 chatgpt: {
                   ...DEFAULT_EXPERIENCE.chatgpt,
                   ...(parsed.chatgpt || {}),
@@ -194,6 +201,7 @@ export const ExperienceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           timeline: parsed.timeline && parsed.timeline.length > 0 ? parsed.timeline : DEFAULT_EXPERIENCE.timeline,
           loveReasons: parsed.loveReasons && parsed.loveReasons.length > 0 ? parsed.loveReasons : DEFAULT_EXPERIENCE.loveReasons,
           bucketList: parsed.bucketList && parsed.bucketList.length > 0 ? parsed.bucketList : DEFAULT_EXPERIENCE.bucketList,
+          openWhen: parsed.openWhen && parsed.openWhen.length > 0 ? parsed.openWhen : DEFAULT_EXPERIENCE.openWhen,
           chatgpt: {
             ...DEFAULT_EXPERIENCE.chatgpt,
             ...(parsed.chatgpt || {}),
@@ -529,6 +537,28 @@ export const ExperienceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }));
   };
 
+  // Open When Envelopes handlers
+  const updateOpenWhenEnvelope = (env: OpenWhenEnvelope) => {
+    setConfig((prev) => ({
+      ...prev,
+      openWhen: prev.openWhen.map((e) => (e.id === env.id ? env : e)),
+    }));
+  };
+
+  const addOpenWhenEnvelope = (env: OpenWhenEnvelope) => {
+    setConfig((prev) => ({
+      ...prev,
+      openWhen: [...prev.openWhen, env],
+    }));
+  };
+
+  const deleteOpenWhenEnvelope = (id: string) => {
+    setConfig((prev) => ({
+      ...prev,
+      openWhen: prev.openWhen.filter((e) => e.id !== id),
+    }));
+  };
+
   // ChatGPT Surprise handler
   const updateChatGpt = (patch: Partial<ChatGptSurpriseConfig>) => {
     setConfig((prev) => ({
@@ -648,6 +678,9 @@ export const ExperienceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         setActiveMemoryIndex,
         restartExperience,
         updateChatGpt,
+        updateOpenWhenEnvelope,
+        addOpenWhenEnvelope,
+        deleteOpenWhenEnvelope,
       }}
     >
       {children}

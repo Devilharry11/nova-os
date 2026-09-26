@@ -91,6 +91,11 @@ export type ThemeConfig = {
   };
 };
 
+export type SyncedLyricLine = {
+  time: number;
+  text: string;
+};
+
 export type MusicConfig = {
   enabled: boolean;
   title: string;
@@ -100,6 +105,8 @@ export type MusicConfig = {
   introText?: string;
   outroText?: string;
   visualizer: boolean;
+  vinylSpinning?: boolean;
+  lyrics?: SyncedLyricLine[];
 };
 
 export type VideoConfig = {
@@ -189,6 +196,16 @@ export type BucketListItem = {
   note?: string;
 };
 
+export type OpenWhenEnvelope = {
+  id: string;
+  trigger: string;
+  subtitle?: string;
+  message: string;
+  photoUrl?: string;
+  category?: 'miss-you' | 'sad-day' | 'cant-sleep' | 'mad-at-me' | 'celebrate' | 'remind-love';
+  sealColor?: string;
+};
+
 export type ChatGptSurpriseConfig = {
   enabled: boolean;
   modelName: string;
@@ -212,6 +229,7 @@ export type ExperienceConfig = {
   memories: MemoryItem[];
   loveReasons: LoveReason[];
   bucketList: BucketListItem[];
+  openWhen: OpenWhenEnvelope[];
   chatgpt: ChatGptSurpriseConfig;
   theme: ThemeConfig;
   letter: LetterConfig;
@@ -229,6 +247,7 @@ export type CoupleScreen =
   | 'timeline'
   | 'portal' 
   | 'scrapbook' 
+  | 'openWhen'
   | 'chatgpt'
   | 'loveNotes'
   | 'bucketList'

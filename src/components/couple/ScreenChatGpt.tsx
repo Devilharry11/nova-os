@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowUp, 
   Sparkles, 
@@ -7,37 +7,51 @@ import {
   RotateCcw, 
   ArrowRight, 
   Check, 
-  Bot, 
-  User, 
   Mic, 
   Paperclip, 
-  Globe2, 
-  ShieldCheck,
-  Flame,
-  Search
+  Copy, 
+  ThumbsUp, 
+  ThumbsDown, 
+  Volume2, 
+  ChevronDown, 
+  ChevronRight, 
+  PanelLeftClose, 
+  PanelLeft, 
+  Plus, 
+  MessageSquare, 
+  Share2, 
+  Flame 
 } from 'lucide-react';
 import { useExperience } from '../../context/ExperienceContext';
 import { vaultAudio } from '../../utils/vaultAudio';
 import { TiltCard } from '../common/TiltCard';
 import { triggerFireworks } from '../../utils/celebration';
 
-// Custom OpenAI Love Flower Logo
-const LoveGptLogo: React.FC<{ size?: string }> = ({ size = 'w-7 h-7' }) => (
+// Custom OpenAI Love Logo
+const OpenAiLogo: React.FC<{ size?: string }> = ({ size = 'w-5 h-5' }) => (
   <div className={`relative ${size} flex items-center justify-center shrink-0`}>
-    <svg viewBox="0 0 24 24" className="w-full h-full text-emerald-400 fill-none stroke-current stroke-2">
+    <svg viewBox="0 0 24 24" className="w-full h-full text-white fill-none stroke-current stroke-2">
       <path d="M12 2a10 10 0 0 1 10 10 10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2z" className="stroke-rose-500/40" />
       <path d="M12 6c-3.3 0-6 2.7-6 6 0 2.2 1.2 4.1 3 5.1" className="stroke-rose-400" />
       <path d="M12 6c3.3 0 6 2.7 6 6 0 2.2-1.2 4.1-3 5.1" className="stroke-violet-400" />
       <circle cx="12" cy="12" r="3" className="fill-rose-500 stroke-none" />
     </svg>
-    <div className="absolute inset-0 bg-rose-500/20 rounded-full blur-md pointer-events-none" />
+    <div className="absolute inset-0 bg-rose-500/20 rounded-full blur-sm pointer-events-none" />
   </div>
 );
 
-const QUICK_PROMPTS = [
+const CHAT_HISTORY = [
+  { id: '1', title: 'Who is the most beautiful girl in the world?', active: true, time: 'Today' },
+  { id: '2', title: 'Our love compatibility analysis', active: false, time: 'Today' },
+  { id: '3', title: 'Why her smile stops time', active: false, time: 'Previous 7 Days' },
+  { id: '4', title: 'Valentine cosmic odds calculation', active: false, time: 'Previous 7 Days' },
+  { id: '5', title: 'Cutest giggles & habits database', active: false, time: 'Previous 30 Days' },
+];
+
+const SUGGESTED_CHIPS = [
   'Who is the most beautiful girl in the world?',
-  'Search Earth for the girl with the prettiest smile',
-  'Who has the most captivating eyes in the universe?',
+  'Search Earth for the girl with the sweetest smile',
+  'Who holds the universal title of prettiest human?',
 ];
 
 export const ScreenChatGpt: React.FC = () => {
@@ -47,12 +61,16 @@ export const ScreenChatGpt: React.FC = () => {
   const [inputQuery, setInputQuery] = useState(chatConfig.defaultQuery || 'Who is the most beautiful girl in the world?');
   const [hasSearched, setHasSearched] = useState(false);
   const [searchStep, setSearchStep] = useState<number>(0);
-  // 0: idle, 1: scanning global database, 2: analyzing metrics, 3: verdict revealed
+  // 0: idle, 1: scanning/thinking, 2: typing response, 3: verdict & photo reveal
   const [typedVerdict, setTypedVerdict] = useState('');
+  const [isThinkingOpen, setIsThinkingOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [liked, setLiked] = useState<boolean | null>(null);
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
-  // Typewriter effect for the AI verdict
+  // Typewriter effect for AI verdict
   useEffect(() => {
     if (searchStep === 2) {
       const fullText = chatConfig.aiVerdict || 'Query completed with 100% confidence. There is only ONE exact match across the entire universe:';
@@ -70,7 +88,7 @@ export const ScreenChatGpt: React.FC = () => {
           vaultAudio.playAiRevealChime();
           triggerFireworks();
         }
-      }, 25);
+      }, 22);
 
       return () => clearInterval(interval);
     }
@@ -87,12 +105,13 @@ export const ScreenChatGpt: React.FC = () => {
     vaultAudio.playCardHover();
     setHasSearched(true);
     setSearchStep(1);
+    setIsThinkingOpen(true);
 
-    // Step 1 -> Step 2
+    // Transition from thinking to typing
     setTimeout(() => {
       vaultAudio.playAiTypingTick();
       setSearchStep(2);
-    }, 1800);
+    }, 2200);
   };
 
   const handleReset = () => {
@@ -103,302 +122,462 @@ export const ScreenChatGpt: React.FC = () => {
     setInputQuery(chatConfig.defaultQuery);
   };
 
+  const handleCopy = () => {
+    vaultAudio.playCardHover();
+    const textToCopy = `ChatGPT Analysis: ${chatConfig.partnerName} is certified as the most beautiful girl in the universe! 💖`;
+    navigator.clipboard.writeText(textToCopy);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const handleContinue = () => {
     vaultAudio.playWaxSealBreak();
-    setScreen('letter');
+    setScreen('openWhen');
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-5.5rem)] flex flex-col justify-between px-3 sm:px-6 py-4 max-w-4xl mx-auto selection:bg-rose-500/30 font-sans">
-      {/* Top ChatGPT Minimalist Bar */}
-      <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-[#1e1e24]/90 border border-white/10 backdrop-blur-xl shadow-lg mb-4">
-        <div className="flex items-center gap-3">
-          <LoveGptLogo />
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-white tracking-wide">
-                {chatConfig.modelName || 'LoveGPT-4o'}
-              </span>
-              <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-mono border border-rose-500/30">
-                Special Edition
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-400">
-              Trained on 8,142,000,000 human beings &bull; Memory Enabled
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {hasSearched && (
-            <button
-              onClick={handleReset}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs transition-colors border border-white/10"
-              title="Reset query"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">New Chat</span>
-            </button>
-          )}
-
-          <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px]">
-            <ShieldCheck className="w-3 h-3" />
-            <span className="hidden sm:inline">Truth Mode: Verified</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col justify-center my-2 overflow-y-auto space-y-6">
-        {!hasSearched ? (
-          /* INITIAL STATE: ChatGPT Welcome Screen */
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center justify-center text-center space-y-6 py-8"
+    <div className="relative min-h-[calc(100vh-5.5rem)] flex bg-[#212121] text-[#ececec] font-sans overflow-hidden rounded-2xl border border-white/10 shadow-2xl my-2">
+      {/* 1. AUTHENTIC COLLAPSIBLE SIDEBAR */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.aside
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 260, opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="h-full bg-[#171717] border-r border-white/10 flex flex-col justify-between shrink-0 z-30 select-none overflow-hidden"
           >
-            <div className="relative">
-              <div className="w-16 h-16 rounded-full bg-[#272732] border border-rose-500/30 flex items-center justify-center text-rose-400 shadow-glow-rose">
-                <LoveGptLogo size="w-10 h-10" />
-              </div>
-            </div>
-
-            <div className="space-y-2 max-w-lg">
-              <h2 className="text-2xl sm:text-4xl font-serif text-white tracking-tight">
-                Ask LoveGPT Anything
-              </h2>
-              <p className="text-sm text-slate-300/80 font-light">
-                Connected to the global neural satellite network. Query beauty metrics, soul frequencies, and celestial rankings.
-              </p>
-            </div>
-
-            {/* Quick Suggested Prompt Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full max-w-2xl pt-2">
-              {QUICK_PROMPTS.map((prompt, idx) => (
+            {/* Sidebar Top: New Chat & Close */}
+            <div className="p-3 space-y-3">
+              <div className="flex items-center justify-between">
                 <button
-                  key={idx}
-                  onClick={() => {
-                    setInputQuery(prompt);
-                    handleSend(prompt);
-                  }}
-                  className="p-3.5 rounded-2xl bg-[#1e1e24]/80 hover:bg-[#282834] border border-white/10 hover:border-rose-500/40 text-left transition-all group hover:scale-[1.02] shadow-md"
+                  onClick={handleReset}
+                  className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-white border border-white/10 transition-colors"
                 >
-                  <Sparkles className="w-4 h-4 text-amber-300 mb-2 group-hover:scale-110 transition-transform" />
-                  <p className="text-xs text-slate-200 group-hover:text-white font-medium leading-snug">
-                    &ldquo;{prompt}&rdquo;
-                  </p>
-                  <span className="text-[10px] text-rose-300/70 mt-2 block font-mono">
-                    Run Analysis &rarr;
-                  </span>
+                  <Plus className="w-3.5 h-3.5" />
+                  <span className="font-medium">New chat</span>
                 </button>
-              ))}
-            </div>
-          </motion.div>
-        ) : (
-          /* CHAT CONVERSATION VIEW */
-          <div className="space-y-6 w-full max-w-2xl mx-auto py-2">
-            {/* User Question Bubble */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-start justify-end gap-3"
-            >
-              <div className="p-4 rounded-2xl rounded-tr-sm bg-[#2f2f3d] text-white text-sm sm:text-base border border-white/10 shadow-md max-w-md">
-                <p className="font-medium">{inputQuery}</p>
-              </div>
-              <div className="w-8 h-8 rounded-full bg-rose-500/20 border border-rose-400/40 flex items-center justify-center text-rose-300 shrink-0">
-                <User className="w-4 h-4" />
-              </div>
-            </motion.div>
 
-            {/* LoveGPT Response Bubble */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="flex items-start gap-3"
-            >
-              <div className="w-8 h-8 rounded-full bg-[#1e1e24] border border-rose-500/40 flex items-center justify-center text-rose-400 shrink-0">
-                <Bot className="w-4 h-4 text-rose-400" />
+                <button
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="p-2 ml-2 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                  title="Close sidebar"
+                >
+                  <PanelLeftClose className="w-4 h-4" />
+                </button>
               </div>
 
-              <div className="flex-1 p-5 rounded-2xl rounded-tl-sm bg-[#18181f]/95 border border-rose-500/30 text-slate-200 text-sm sm:text-base shadow-2xl space-y-4">
-                {/* Step 1: Processing / Searching Global Humans */}
-                {searchStep === 1 && (
-                  <div className="space-y-3 py-2">
-                    <div className="flex items-center gap-2.5 text-xs text-rose-300 font-mono">
-                      <Globe2 className="w-4 h-4 animate-spin text-rose-400" />
-                      <span>{chatConfig.aiResponseIntro || 'Scanning 8.14 billion humans across Earth...'}</span>
-                    </div>
-
-                    <div className="w-full bg-[#272733] h-2 rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: '0%' }}
-                        animate={{ width: '100%' }}
-                        transition={{ duration: 1.6, ease: 'easeInOut' }}
-                        className="h-full bg-gradient-to-r from-rose-500 to-violet-500 rounded-full"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 2 & 3: Verdict Text */}
-                {searchStep >= 2 && (
-                  <div className="space-y-2">
-                    <p className="text-xs sm:text-sm font-mono text-emerald-400 flex items-center gap-1.5">
-                      <Check className="w-4 h-4 text-emerald-400" />
-                      <span>Database Query Completed: 1 Match Found (Score: 100.00%)</span>
-                    </p>
-                    <p className="text-sm sm:text-base text-slate-100 font-serif leading-relaxed">
-                      {typedVerdict}
-                    </p>
-                  </div>
-                )}
-
-                {/* Step 3: THE GRAND REVEAL (GIRL'S PHOTO CARD) */}
-                {searchStep === 3 && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.92, y: 15 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="pt-2"
-                  >
-                    <TiltCard maxTilt={5} scale={1.01} className="w-full">
-                      <div className="relative rounded-2xl p-5 sm:p-6 bg-gradient-to-br from-[#24132e] via-[#1a0e23] to-[#120819] border-2 border-rose-500/50 shadow-glow-rose overflow-hidden space-y-5">
-                        {/* Shimmering Starlight Ambient Glow */}
-                        <div className="absolute top-0 right-0 w-48 h-48 bg-rose-500/20 rounded-full blur-3xl pointer-events-none" />
-                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-violet-600/20 rounded-full blur-3xl pointer-events-none" />
-
-                        {/* Crown & Match Rank Header */}
-                        <div className="flex items-center justify-between border-b border-rose-500/20 pb-3">
-                          <div className="flex items-center gap-2">
-                            <Crown className="w-5 h-5 text-amber-300 animate-bounce" />
-                            <span className="text-xs font-sans uppercase tracking-widest text-amber-200 font-bold">
-                              CERTIFIED MOST BEAUTIFUL IN THE WORLD
-                            </span>
-                          </div>
-                          <span className="text-[10px] font-mono text-rose-300 bg-rose-500/20 px-2 py-0.5 rounded-full border border-rose-500/30">
-                            #1 UNIVERSAL RANK
-                          </span>
-                        </div>
-
-                        {/* Photo Display with Glowing Frame */}
-                        <div className="relative aspect-[4/5] sm:aspect-square w-full max-w-sm mx-auto rounded-xl overflow-hidden shadow-2xl border-2 border-amber-300/40 group">
-                          <img
-                            src={chatConfig.partnerPhotoUrl}
-                            alt={chatConfig.partnerName}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-
-                          {/* Floating Bottom Name Overlay */}
-                          <div className="absolute bottom-0 inset-x-0 p-4 text-center space-y-1">
-                            <h3 className="text-2xl sm:text-3xl font-serif text-white font-medium drop-shadow-md">
-                              {chatConfig.partnerName || 'Elena'}
-                            </h3>
-                            <p className="text-xs font-sans text-rose-200 tracking-wider">
-                              The One &amp; Only &bull; Out of 8.2 Billion
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* AI Metrics Badges */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                          {(chatConfig.compliments || [
-                            'Smile: Brighter than a thousand supernovas',
-                            'Kindness: Pure golden soul',
-                            'Cutest Laugh: Universally unmatched',
-                            'Multiverse Rank: #1 Forever & Always',
-                          ]).map((comp, i) => (
-                            <div
-                              key={i}
-                              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-midnight-950/70 border border-white/10 text-xs text-rose-200 font-sans"
-                            >
-                              <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-                              <span>{comp}</span>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Humorous System Notice */}
-                        <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/30 text-center">
-                          <p className="text-xs text-rose-200/90 italic font-sans">
-                            &ldquo;{chatConfig.tagline || 'System Notice: Looking at this photograph may cause accelerated heartbeat and uncontrollable blushing.'}&rdquo;
-                          </p>
-                        </div>
-                      </div>
-                    </TiltCard>
-
-                    {/* Post-Reveal Action Buttons */}
-                    <div className="flex flex-wrap items-center justify-center gap-3 pt-6">
+              {/* Chat History List */}
+              <div className="space-y-4 pt-2">
+                <div>
+                  <span className="text-[11px] font-medium text-slate-400 px-3 uppercase tracking-wider">
+                    Today
+                  </span>
+                  <div className="mt-1 space-y-0.5">
+                    {CHAT_HISTORY.filter(c => c.time === 'Today').map(chat => (
                       <button
+                        key={chat.id}
                         onClick={() => {
-                          vaultAudio.playCelebrationBurst();
-                          triggerFireworks();
+                          if (chat.id === '1') {
+                            setInputQuery(chatConfig.defaultQuery);
+                            handleSend(chatConfig.defaultQuery);
+                          }
                         }}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-500/40 text-xs font-sans tracking-wider uppercase transition-all hover:scale-105 active:scale-95"
+                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-left truncate transition-colors ${
+                          chat.active && hasSearched
+                            ? 'bg-[#212121] text-white font-medium'
+                            : 'text-slate-300 hover:bg-white/5'
+                        }`}
                       >
-                        <Flame className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-                        <span>Confirm Truth (Celebrate)</span>
+                        <MessageSquare className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span className="truncate">{chat.title}</span>
                       </button>
+                    ))}
+                  </div>
+                </div>
 
-                      <button
-                        onClick={handleContinue}
-                        className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-rose-500 via-rose-600 to-violet-600 text-white text-xs font-sans tracking-widest uppercase font-medium shadow-glow-rose hover:scale-[1.03] active:scale-[0.98] transition-all"
+                <div>
+                  <span className="text-[11px] font-medium text-slate-400 px-3 uppercase tracking-wider">
+                    Previous 7 Days
+                  </span>
+                  <div className="mt-1 space-y-0.5">
+                    {CHAT_HISTORY.filter(c => c.time === 'Previous 7 Days').map(chat => (
+                      <div
+                        key={chat.id}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-white/5 truncate cursor-pointer"
                       >
-                        <span>Open Wax-Sealed Love Letter</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
+                        <MessageSquare className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                        <span className="truncate">{chat.title}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </motion.div>
+            </div>
 
-            <div ref={bottomRef} />
-          </div>
+            {/* Sidebar Bottom: User Profile */}
+            <div className="p-3 border-t border-white/10">
+              <div className="flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-white/5 cursor-pointer">
+                <div className="w-8 h-8 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-300 font-serif font-bold text-xs">
+                  {config.coupleNames.slice(0, 2).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-medium text-white truncate">
+                    {config.coupleNames}
+                  </div>
+                  <div className="text-[10px] text-rose-300 font-mono flex items-center gap-1">
+                    <Sparkles className="w-2.5 h-2.5 text-amber-300" />
+                    <span>Love Edition Plus</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.aside>
         )}
-      </div>
+      </AnimatePresence>
 
-      {/* Bottom ChatGPT Prompt Bar */}
-      <div className="w-full max-w-2xl mx-auto pt-2">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSend();
-          }}
-          className="relative flex items-center bg-[#1e1e24] border border-white/15 focus-within:border-rose-500/50 rounded-2xl shadow-xl transition-all p-2"
-        >
-          <div className="flex items-center gap-2 px-2 text-slate-400">
-            <Paperclip className="w-4 h-4 cursor-pointer hover:text-white transition-colors" />
-            <Search className="w-4 h-4" />
+      {/* 2. MAIN CHAT AREA */}
+      <div className="flex-1 flex flex-col justify-between h-full min-w-0 bg-[#212121]">
+        {/* Top Header Bar */}
+        <header className="sticky top-0 z-20 flex items-center justify-between px-3 sm:px-5 py-2.5 bg-[#212121]/90 backdrop-blur-md border-b border-white/5">
+          <div className="flex items-center gap-2">
+            {!isSidebarOpen && (
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="p-2 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
+                title="Open sidebar"
+              >
+                <PanelLeft className="w-4 h-4" />
+              </button>
+            )}
+
+            {/* Model Switcher Pill */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-white/10 cursor-pointer text-sm font-semibold text-white transition-colors group">
+              <span>ChatGPT</span>
+              <span className="text-xs text-slate-400 font-normal group-hover:text-slate-300">4o Love</span>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+            </div>
           </div>
-
-          <input
-            type="text"
-            value={inputQuery}
-            onChange={(e) => setInputQuery(e.target.value)}
-            placeholder="Ask ChatGPT: Who is the most beautiful girl in the world?..."
-            className="flex-1 bg-transparent px-2 py-1.5 text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none"
-          />
 
           <div className="flex items-center gap-2">
-            <Mic className="w-4 h-4 text-slate-400 cursor-pointer hover:text-white transition-colors hidden sm:block" />
+            {hasSearched && (
+              <button
+                onClick={handleReset}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-xs text-slate-300 transition-colors border border-white/10"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span className="hidden sm:inline">New Chat</span>
+              </button>
+            )}
 
             <button
-              type="submit"
-              disabled={!inputQuery.trim() || searchStep === 1}
-              className="w-9 h-9 rounded-xl bg-white text-black hover:bg-rose-200 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-md"
-              title="Send prompt to ChatGPT"
+              onClick={() => {
+                vaultAudio.playCardHover();
+                triggerFireworks();
+              }}
+              className="p-2 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
+              title="Celebration fireworks"
             >
-              <ArrowUp className="w-4 h-4 stroke-[2.5]" />
+              <Share2 className="w-4 h-4" />
             </button>
           </div>
-        </form>
+        </header>
 
-        <p className="text-[11px] text-center text-slate-400/60 mt-2 font-sans">
-          LoveGPT can produce accurate universal truths about how stunning she is. Verify with your own eyes.
-        </p>
+        {/* Conversation Stream */}
+        <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 space-y-8 max-w-3xl w-full mx-auto">
+          {!hasSearched ? (
+            /* INITIAL STATE: ChatGPT Logo & Quick Suggestion Prompts */
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col items-center justify-center text-center space-y-8 my-auto min-h-[50vh]"
+            >
+              <div className="w-14 h-14 rounded-full bg-[#2f2f2f] border border-rose-500/30 flex items-center justify-center shadow-lg shadow-rose-950/30">
+                <OpenAiLogo size="w-8 h-8" />
+              </div>
+
+              <div className="space-y-2">
+                <h2 className="text-2xl sm:text-3xl font-serif text-white">
+                  What can I help you find today?
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto font-light">
+                  Query the global beauty parameters, smile warmth index, and cosmic compatibility scores.
+                </p>
+              </div>
+
+              {/* Suggestions Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full max-w-2xl pt-2">
+                {SUGGESTED_CHIPS.map((chip, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setInputQuery(chip);
+                      handleSend(chip);
+                    }}
+                    className="p-3.5 rounded-2xl bg-[#2f2f2f]/80 hover:bg-[#383838] border border-white/5 hover:border-rose-500/30 text-left transition-all group shadow-sm"
+                  >
+                    <p className="text-xs text-slate-200 group-hover:text-white font-medium line-clamp-2">
+                      &ldquo;{chip}&rdquo;
+                    </p>
+                    <span className="text-[10px] text-rose-300/80 mt-2 block font-mono">
+                      Ask ChatGPT &rarr;
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          ) : (
+            /* ACTIVE CHAT: USER MESSAGE & AI RESPONSE */
+            <div className="space-y-6">
+              {/* User Bubble */}
+              <div className="flex justify-end">
+                <div className="max-w-[85%] sm:max-w-[70%] bg-[#2f2f2f] text-white px-4 py-3 rounded-3xl rounded-tr-sm text-sm sm:text-base shadow-sm">
+                  <p>{inputQuery}</p>
+                </div>
+              </div>
+
+              {/* ChatGPT Response */}
+              <div className="flex gap-4 items-start">
+                <div className="w-7 h-7 rounded-full bg-[#2f2f2f] border border-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <OpenAiLogo size="w-4 h-4" />
+                </div>
+
+                <div className="flex-1 space-y-4 text-sm sm:text-base leading-relaxed text-[#ececec]">
+                  {/* REAL-LOOKING "Thought for 3 seconds" ACCORDION (Like real ChatGPT o1/4o) */}
+                  <div className="border border-white/10 rounded-xl overflow-hidden bg-[#181818]">
+                    <button
+                      onClick={() => setIsThinkingOpen(!isThinkingOpen)}
+                      className="w-full flex items-center justify-between px-3.5 py-2 text-xs font-mono text-slate-400 hover:text-slate-200 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        {searchStep === 1 ? (
+                          <div className="w-2.5 h-2.5 rounded-full bg-rose-400 animate-ping" />
+                        ) : (
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                        )}
+                        <span>
+                          {searchStep === 1 ? 'Thinking & scanning humanity...' : 'Thought for 3 seconds'}
+                        </span>
+                      </div>
+                      {isThinkingOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                    </button>
+
+                    {isThinkingOpen && (
+                      <div className="px-3.5 pb-3 pt-1 text-[11px] font-mono text-slate-400 border-t border-white/5 space-y-1 bg-[#141414]">
+                        <p className="text-rose-300">&gt; Target parameter: &quot;Most beautiful girl on Earth&quot;</p>
+                        <p>&gt; Scanning global database: 8,142,000,000 individuals evaluated.</p>
+                        <p>&gt; Cross-referencing facial harmony, kindest soul, and warm contagious laugh.</p>
+                        <p className="text-emerald-400">&gt; Outliers eliminated: 1 solitary match found with 100.00% confidence.</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* AI Response Stream */}
+                  {searchStep >= 2 && (
+                    <div className="space-y-4">
+                      <p className="text-sm sm:text-base font-serif text-white leading-relaxed">
+                        {typedVerdict}
+                        {searchStep === 2 && <span className="inline-block w-2 h-4 ml-1 bg-white animate-pulse" />}
+                      </p>
+
+                      {/* THE GRAND PARTNER PHOTO REVEAL CARD */}
+                      {searchStep === 3 && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                          className="pt-2"
+                        >
+                          <TiltCard maxTilt={4} scale={1.01} className="w-full">
+                            <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-[#2a132e] via-[#1a0e23] to-[#120819] border-2 border-rose-500/50 shadow-2xl overflow-hidden space-y-5">
+                              {/* Background Aurora */}
+                              <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/20 rounded-full blur-3xl pointer-events-none" />
+                              <div className="absolute bottom-0 left-0 w-64 h-64 bg-violet-600/20 rounded-full blur-3xl pointer-events-none" />
+
+                              {/* Crown Badge */}
+                              <div className="flex items-center justify-between border-b border-rose-500/20 pb-4">
+                                <div className="flex items-center gap-2">
+                                  <Crown className="w-5 h-5 text-amber-300 animate-bounce" />
+                                  <span className="text-xs font-sans uppercase tracking-widest text-amber-200 font-bold">
+                                    CERTIFIED MOST BEAUTIFUL IN THE WORLD
+                                  </span>
+                                </div>
+                                <span className="text-[10px] font-mono text-rose-300 bg-rose-500/20 px-2.5 py-0.5 rounded-full border border-rose-500/30">
+                                  #1 UNIVERSAL RANK
+                                </span>
+                              </div>
+
+                              {/* Framed Photograph */}
+                              <div className="relative aspect-[4/5] sm:aspect-square w-full max-w-sm mx-auto rounded-2xl overflow-hidden shadow-2xl border-2 border-amber-300/40 group">
+                                <img
+                                  src={chatConfig.partnerPhotoUrl}
+                                  alt={chatConfig.partnerName}
+                                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+
+                                <div className="absolute bottom-0 inset-x-0 p-5 text-center space-y-1">
+                                  <h3 className="text-3xl font-serif text-white font-medium drop-shadow-lg">
+                                    {chatConfig.partnerName || 'Elena'}
+                                  </h3>
+                                  <p className="text-xs text-rose-200 tracking-wider">
+                                    The One &amp; Only &bull; Out of 8.2 Billion
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* AI Badges */}
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                                {(chatConfig.compliments || [
+                                  'Smile: Brighter than a thousand supernovas',
+                                  'Kindness: Pure golden soul',
+                                  'Cutest Laugh: Universally unmatched',
+                                  'Multiverse Rank: #1 Forever & Always',
+                                ]).map((comp, i) => (
+                                  <div
+                                    key={i}
+                                    className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-midnight-950/80 border border-white/10 text-xs text-rose-200 font-sans"
+                                  >
+                                    <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                                    <span>{comp}</span>
+                                  </div>
+                                ))}
+                              </div>
+
+                              {/* System Notice */}
+                              <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-center">
+                                <p className="text-xs text-rose-200/90 italic font-sans">
+                                  &ldquo;{chatConfig.tagline || 'System Notice: Looking at this photograph may cause accelerated heartbeat and uncontrollable blushing.'}&rdquo;
+                                </p>
+                              </div>
+                            </div>
+                          </TiltCard>
+
+                          {/* Navigation CTA to Open When Envelopes */}
+                          <div className="flex flex-wrap items-center justify-between gap-3 pt-6">
+                            <button
+                              onClick={() => {
+                                vaultAudio.playCelebrationBurst();
+                                triggerFireworks();
+                              }}
+                              className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-500/40 text-xs font-sans tracking-wider uppercase transition-all"
+                            >
+                              <Flame className="w-3.5 h-3.5 text-amber-300" />
+                              <span>Celebrate Truth</span>
+                            </button>
+
+                            <button
+                              onClick={handleContinue}
+                              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-rose-500 via-rose-600 to-violet-600 text-white text-xs font-sans tracking-widest uppercase font-medium shadow-glow-rose hover:scale-[1.02] active:scale-[0.98] transition-all"
+                            >
+                              <span>Next: &ldquo;Open When...&rdquo; Envelopes</span>
+                              <ArrowRight className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {/* Real ChatGPT Action Row (Copy, Thumbs, Sound) */}
+                      <div className="flex items-center gap-2 pt-2 text-slate-400 text-xs">
+                        <button
+                          onClick={handleCopy}
+                          className="p-1.5 rounded-lg hover:bg-white/10 hover:text-white transition-colors"
+                          title="Copy response"
+                        >
+                          {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setLiked(true);
+                            vaultAudio.playHeartCollect();
+                          }}
+                          className={`p-1.5 rounded-lg hover:bg-white/10 transition-colors ${liked === true ? 'text-emerald-400' : 'hover:text-white'}`}
+                          title="Good response"
+                        >
+                          <ThumbsUp className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setLiked(false);
+                            vaultAudio.playCardHover();
+                          }}
+                          className={`p-1.5 rounded-lg hover:bg-white/10 transition-colors ${liked === false ? 'text-rose-400' : 'hover:text-white'}`}
+                          title="Bad response"
+                        >
+                          <ThumbsDown className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          onClick={() => vaultAudio.playAiRevealChime()}
+                          className="p-1.5 rounded-lg hover:bg-white/10 hover:text-white transition-colors"
+                          title="Read response aloud"
+                        >
+                          <Volume2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div ref={bottomRef} />
+            </div>
+          )}
+        </div>
+
+        {/* 3. AUTHENTIC BOTTOM INPUT PILL */}
+        <div className="p-3 sm:p-5 max-w-3xl w-full mx-auto">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSend();
+            }}
+            className="relative flex items-center bg-[#2f2f2f] focus-within:bg-[#2f2f2f] border border-white/10 focus-within:border-white/20 rounded-3xl p-2 shadow-lg transition-all"
+          >
+            <div className="flex items-center gap-1.5 pl-2 text-slate-400">
+              <button
+                type="button"
+                className="p-1.5 rounded-full hover:bg-white/10 hover:text-white transition-colors"
+                title="Attach file"
+              >
+                <Paperclip className="w-4 h-4" />
+              </button>
+            </div>
+
+            <input
+              type="text"
+              value={inputQuery}
+              onChange={(e) => setInputQuery(e.target.value)}
+              placeholder="Ask ChatGPT anything..."
+              className="flex-1 bg-transparent px-3 py-2 text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none"
+            />
+
+            <div className="flex items-center gap-1 pr-1">
+              <button
+                type="button"
+                className="p-2 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors hidden sm:block"
+                title="Voice input"
+              >
+                <Mic className="w-4 h-4" />
+              </button>
+
+              <button
+                type="submit"
+                disabled={!inputQuery.trim() || searchStep === 1}
+                className="w-8 h-8 rounded-full bg-white text-black hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shadow-sm"
+                title="Send query"
+              >
+                <ArrowUp className="w-4 h-4 stroke-[2.5]" />
+              </button>
+            </div>
+          </form>
+
+          <p className="text-[11px] text-center text-slate-500 mt-2 font-sans">
+            ChatGPT can make mistakes. But regarding {chatConfig.partnerName || 'her'}, the analysis is 100% infallible.
+          </p>
+        </div>
       </div>
     </div>
   );

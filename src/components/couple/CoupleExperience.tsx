@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, Music, Sliders, Heart, Maximize, Minimize } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Volume2, VolumeX, Music, Sliders, Heart, Maximize, Minimize, Sparkles } from 'lucide-react';
 import { useExperience } from '../../context/ExperienceContext';
 import { vaultAudio } from '../../utils/vaultAudio';
 import { ScreenWelcome } from './ScreenWelcome';
@@ -14,6 +15,7 @@ import { ScreenVideo } from './ScreenVideo';
 import { ScreenLetter } from './ScreenLetter';
 import { ScreenFinalSecret } from './ScreenFinalSecret';
 import { ScreenChatGpt } from './ScreenChatGpt';
+import { ScreenOpenWhen } from './ScreenOpenWhen';
 
 export const CoupleExperience: React.FC = () => {
   const { 
@@ -108,6 +110,8 @@ export const CoupleExperience: React.FC = () => {
         return <ScreenScrapbook />;
       case 'chatgpt':
         return <ScreenChatGpt />;
+      case 'openWhen':
+        return <ScreenOpenWhen />;
       case 'loveNotes':
         return <ScreenLoveNotes />;
       case 'bucketList':
@@ -128,8 +132,10 @@ export const CoupleExperience: React.FC = () => {
   const SCREENS: { id: typeof currentScreen; label: string }[] = [
     { id: 'welcome', label: 'Welcome' },
     { id: 'timeline', label: 'Our Story' },
+    { id: 'music', label: 'Vinyl Track' },
     { id: 'scrapbook', label: 'Memories' },
     { id: 'chatgpt', label: 'LoveGPT AI' },
+    { id: 'openWhen', label: 'Open When' },
     { id: 'letter', label: 'Letter & Voice' },
     { id: 'final', label: 'Keepsake' },
   ];
@@ -240,6 +246,28 @@ export const CoupleExperience: React.FC = () => {
       <footer className="relative z-10 py-3 text-center text-[11px] font-sans tracking-widest uppercase text-slate-400/60 pointer-events-none">
         HEART//VAULT &bull; {config.coupleNames}
       </footer>
+
+      {/* Floating LoveGPT Quick Summon Bubble (when not on chatgpt screen) */}
+      {currentScreen !== 'chatgpt' && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.8, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          whileHover={{ scale: 1.06 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => {
+            vaultAudio.playCardHover();
+            setScreen('chatgpt');
+          }}
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-rose-600 via-rose-500 to-violet-600 text-white font-sans text-xs font-medium shadow-[0_0_25px_rgba(224,90,136,0.6)] border border-white/20 backdrop-blur-md group"
+          title="Ask LoveGPT who the prettiest girl in the world is"
+        >
+          <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+            <Sparkles className="w-3 h-3 text-amber-200 animate-spin-slow" />
+          </div>
+          <span className="tracking-wide">Ask LoveGPT</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        </motion.button>
+      )}
     </div>
   );
 };

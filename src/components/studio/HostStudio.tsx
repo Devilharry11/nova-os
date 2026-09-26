@@ -31,12 +31,14 @@ import { TypographyEditor } from './TypographyEditor';
 import { LetterEditor } from './LetterEditor';
 import { ThemeEditor } from './ThemeEditor';
 import { ChatGptEditor } from './ChatGptEditor';
+import { OpenWhenEditor } from './OpenWhenEditor';
 import { LivePreviewModal } from './LivePreviewModal';
 
 type StudioTab = 
   | 'overview' 
   | 'timeline'
   | 'chatgpt'
+  | 'openWhen'
   | 'questions' 
   | 'scrapbook' 
   | 'loveNotes'
@@ -57,6 +59,7 @@ export const HostStudio: React.FC = () => {
     { id: 'timeline', label: 'Our Story & Clock', icon: <Compass className="w-4 h-4" /> },
     { id: 'scrapbook', label: 'Scrapbook', icon: <Image className="w-4 h-4" /> },
     { id: 'chatgpt', label: 'LoveGPT AI Reveal', icon: <Sparkles className="w-4 h-4 text-emerald-400" /> },
+    { id: 'openWhen', label: '"Open When" Envelopes', icon: <Gift className="w-4 h-4 text-sky-400" /> },
     { id: 'loveNotes', label: 'Love Notes Deck', icon: <Gift className="w-4 h-4" /> },
     { id: 'bucketList', label: 'Future Bucket List', icon: <Star className="w-4 h-4" /> },
     { id: 'music', label: 'Music & Reels Songs', icon: <Music className="w-4 h-4" /> },
@@ -75,6 +78,8 @@ export const HostStudio: React.FC = () => {
         return <TimelineEditor />;
       case 'chatgpt':
         return <ChatGptEditor />;
+      case 'openWhen':
+        return <OpenWhenEditor />;
       case 'questions':
         return <QuestionsEditor />;
       case 'scrapbook':

@@ -14,7 +14,6 @@ import {
   Activity,
   Globe2,
   Fingerprint,
-  CheckCircle2,
   Volume2,
   VolumeX,
   FastForward,
@@ -173,7 +172,7 @@ export const ScreenTimeline: React.FC = () => {
 
   const handleContinue = () => {
     vaultAudio.playPortalResonance();
-    setScreen('scrapbook');
+    setScreen('music');
   };
 
   // Cosmic calculations
@@ -335,85 +334,121 @@ export const ScreenTimeline: React.FC = () => {
               </div>
             </div>
 
-            {/* 🌟 HATKE FEATURE: DUAL BIOMETRIC SOUL SCANNER ("Touch & Sync Our Souls") */}
+            {/* 🌟 HATKE FEATURE: DUAL FINGERPRINT TOUCH & MERGE RITUAL */}
             <div className="mt-8 pt-8 border-t border-white/10 flex flex-col items-center justify-center text-center">
               <div className="max-w-md space-y-2 mb-6">
                 <span className="inline-flex items-center gap-1.5 text-xs font-sans uppercase tracking-widest text-rose-300">
                   <Fingerprint className="w-3.5 h-3.5 text-rose-400" />
-                  <span>Interactive Soul Synchronizer</span>
+                  <span>Dual Biometric Soul Synchronizer</span>
                 </span>
                 <h4 className="text-lg sm:text-xl font-serif text-white font-medium">
-                  {isSynced ? '✨ Souls Synchronized for Eternity' : 'Hold Your Finger To Sync Our Frequency'}
+                  {isSynced ? '✨ Two Souls Merged Into One Infinite Universe' : 'Place Both Thumbs To Merge Our Souls'}
                 </h4>
                 <p className="text-xs text-slate-400 font-sans">
                   {isSynced 
-                    ? 'Our wavelengths are aligned in the celestial ledger. Touch again anytime.' 
-                    : 'Press and hold the glowing biometric ring for 2.5 seconds to harmonize our heartbeat.'}
+                    ? 'Our biometric frequencies are permanently locked in starlight. Touch again anytime.' 
+                    : 'Press and hold both glowing rings together (or hold either) — watch them glide and fuse into a supernova.'}
                 </p>
               </div>
 
-              {/* The Interactive Touch Scanner Orb */}
-              <div className="relative flex items-center justify-center">
-                {/* Animated Outer Pulse Rings */}
-                {isScanning && (
-                  <motion.div
-                    animate={{ scale: [1, 1.4, 1], opacity: [0.6, 0.1, 0.6] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                    className="absolute w-36 h-36 rounded-full border-2 border-rose-400 pointer-events-none"
-                  />
-                )}
-
-                {/* Progress SVG Ring */}
-                <svg className="w-32 h-32 transform -rotate-90 pointer-events-none">
-                  <circle
-                    cx="64"
-                    cy="64"
-                    r="56"
-                    stroke="rgba(255,255,255,0.08)"
-                    strokeWidth="4"
-                    fill="transparent"
-                  />
-                  <motion.circle
-                    cx="64"
-                    cy="64"
-                    r="56"
-                    stroke="#e05a88"
-                    strokeWidth="4"
-                    fill="transparent"
-                    strokeDasharray={351.8}
-                    strokeDashoffset={351.8 - (351.8 * scanProgress) / 100}
-                    strokeLinecap="round"
-                    className="transition-all duration-75"
-                  />
-                </svg>
-
-                {/* Center Touch Sensor Button */}
-                <button
-                  onMouseDown={handleStartScan}
-                  onMouseUp={handleStopScan}
-                  onMouseLeave={handleStopScan}
-                  onTouchStart={handleStartScan}
-                  onTouchEnd={handleStopScan}
-                  className={`absolute w-24 h-24 rounded-full flex flex-col items-center justify-center select-none cursor-pointer transition-all duration-300 ${
-                    isSynced
-                      ? 'bg-gradient-to-tr from-rose-600 to-violet-600 shadow-[0_0_30px_rgba(224,90,136,0.9)] scale-105'
-                      : isScanning
-                      ? 'bg-rose-600/50 shadow-[0_0_25px_rgba(224,90,136,0.8)] scale-95'
-                      : 'bg-midnight-950 border-2 border-rose-500/40 hover:border-rose-400 hover:scale-105 shadow-xl'
-                  }`}
-                >
-                  {isSynced ? (
-                    <CheckCircle2 className="w-9 h-9 text-white animate-bounce" />
-                  ) : (
-                    <Fingerprint className={`w-9 h-9 transition-colors ${
-                      isScanning ? 'text-white animate-pulse' : 'text-rose-400'
-                    }`} />
+              {/* The Interactive Dual Merge Arena */}
+              <div className="relative flex items-center justify-center w-full max-w-sm h-36">
+                {/* Center Magnetic Connector Line & Energy Beam */}
+                <div className="absolute inset-x-8 h-1 bg-gradient-to-r from-rose-500/20 via-rose-400/50 to-violet-500/20 rounded-full overflow-hidden">
+                  {isScanning && (
+                    <motion.div
+                      animate={{ scaleX: [0.2, 1, 0.2], opacity: [0.4, 1, 0.4] }}
+                      transition={{ duration: 0.8, repeat: Infinity }}
+                      className="w-full h-full bg-gradient-to-r from-rose-400 via-white to-violet-400"
+                    />
                   )}
+                </div>
 
-                  <span className="text-[10px] font-mono text-rose-200 mt-1 font-semibold">
-                    {isSynced ? '100% SYNC' : isScanning ? `${scanProgress}%` : 'HOLD'}
-                  </span>
-                </button>
+                {/* Left Fingerprint Orb: Soul Alpha */}
+                <motion.div
+                  animate={{
+                    x: isSynced ? 48 : isScanning ? (scanProgress * 0.48) : 0,
+                  }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute left-6 sm:left-12 z-10"
+                >
+                  <button
+                    onMouseDown={handleStartScan}
+                    onMouseUp={handleStopScan}
+                    onMouseLeave={handleStopScan}
+                    onTouchStart={handleStartScan}
+                    onTouchEnd={handleStopScan}
+                    className={`w-20 h-20 rounded-full flex flex-col items-center justify-center select-none cursor-pointer transition-all duration-300 ${
+                      isSynced
+                        ? 'opacity-0 scale-50 pointer-events-none'
+                        : isScanning
+                        ? 'bg-rose-600/70 border-2 border-rose-300 shadow-[0_0_25px_rgba(224,90,136,0.9)] scale-105'
+                        : 'bg-midnight-950 border-2 border-rose-500/40 hover:border-rose-400 hover:scale-105 shadow-xl'
+                    }`}
+                  >
+                    <Fingerprint className={`w-8 h-8 ${isScanning ? 'text-white animate-pulse' : 'text-rose-400'}`} />
+                    <span className="text-[9px] font-mono text-rose-200 mt-1 uppercase font-semibold">
+                      His Touch
+                    </span>
+                  </button>
+                </motion.div>
+
+                {/* Right Fingerprint Orb: Soul Omega */}
+                <motion.div
+                  animate={{
+                    x: isSynced ? -48 : isScanning ? -(scanProgress * 0.48) : 0,
+                  }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute right-6 sm:right-12 z-10"
+                >
+                  <button
+                    onMouseDown={handleStartScan}
+                    onMouseUp={handleStopScan}
+                    onMouseLeave={handleStopScan}
+                    onTouchStart={handleStartScan}
+                    onTouchEnd={handleStopScan}
+                    className={`w-20 h-20 rounded-full flex flex-col items-center justify-center select-none cursor-pointer transition-all duration-300 ${
+                      isSynced
+                        ? 'opacity-0 scale-50 pointer-events-none'
+                        : isScanning
+                        ? 'bg-violet-600/70 border-2 border-violet-300 shadow-[0_0_25px_rgba(157,114,255,0.9)] scale-105'
+                        : 'bg-midnight-950 border-2 border-violet-500/40 hover:border-violet-400 hover:scale-105 shadow-xl'
+                    }`}
+                  >
+                    <Fingerprint className={`w-8 h-8 ${isScanning ? 'text-white animate-pulse' : 'text-violet-400'}`} />
+                    <span className="text-[9px] font-mono text-violet-200 mt-1 uppercase font-semibold">
+                      Her Touch
+                    </span>
+                  </button>
+                </motion.div>
+
+                {/* Center Merged Supernova Orb (Appears when 100% or Synced) */}
+                <AnimatePresence>
+                  {isSynced && (
+                    <motion.div
+                      initial={{ scale: 0, opacity: 0, rotate: -45 }}
+                      animate={{ scale: [0, 1.25, 1], opacity: 1, rotate: 0 }}
+                      transition={{ duration: 0.8, ease: 'easeOut' }}
+                      className="absolute z-20 w-28 h-28 rounded-full bg-gradient-to-tr from-rose-500 via-rose-600 to-violet-600 flex flex-col items-center justify-center text-white shadow-[0_0_40px_rgba(224,90,136,0.9)] border-2 border-white/40 cursor-pointer"
+                      onClick={() => {
+                        vaultAudio.playSoulSync();
+                        triggerFireworks();
+                      }}
+                    >
+                      <Heart className="w-10 h-10 fill-white animate-bounce drop-shadow-md" />
+                      <span className="text-[10px] font-mono font-bold tracking-wider mt-1">
+                        100% FUSED
+                      </span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Progress Percentage Indicator */}
+                {!isSynced && isScanning && (
+                  <div className="absolute -bottom-6 text-xs font-mono font-semibold text-rose-300 animate-pulse">
+                    Fusing Frequency: {scanProgress}%
+                  </div>
+                )}
               </div>
             </div>
 
@@ -597,7 +632,7 @@ export const ScreenTimeline: React.FC = () => {
           onClick={handleContinue}
           className="inline-flex items-center gap-3 px-9 py-4 rounded-full bg-gradient-to-r from-rose-500 via-rose-600 to-violet-600 text-white font-sans text-xs sm:text-sm tracking-widest uppercase font-medium shadow-glow-rose hover:scale-[1.03] active:scale-[0.98] transition-all"
         >
-          <span>Step Into Our Memory Gallery</span>
+          <span>Step Into Our Vinyl Anthem &amp; Synced Lyrics</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </motion.div>
