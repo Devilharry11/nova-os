@@ -1,20 +1,130 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Feather, ArrowRight, Eye, Sparkles, RotateCcw } from 'lucide-react';
+import { 
+  Heart, 
+  Feather, 
+  ArrowRight, 
+  Eye, 
+  Sparkles, 
+  RotateCcw,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Mic
+} from 'lucide-react';
 import { useExperience } from '../../context/ExperienceContext';
 import { vaultAudio } from '../../utils/vaultAudio';
 import { TiltCard } from '../common/TiltCard';
 import { triggerFireworks } from '../../utils/celebration';
 
+// Pre-defined waveform bar heights for realistic voice recording aesthetic
+const WAVEFORM_BARS = [
+  24, 38, 55, 30, 48, 70, 85, 45, 60, 92, 75, 40, 65, 80, 50, 
+  35, 60, 88, 72, 45, 62, 95, 68, 52, 78, 42, 60, 35, 48, 25
+];
+
 export const ScreenLetter: React.FC = () => {
   const { config, setScreen } = useExperience();
   const letter = config.letter;
+  const voiceNote = letter.voiceNote;
+
   const [isSealed, setIsSealed] = useState<boolean>(true);
   const [isBreaking, setIsBreaking] = useState<boolean>(false);
   const [revealedParagraphs, setRevealedParagraphs] = useState<number>(1);
   const [isFullyRevealed, setIsFullyRevealed] = useState<boolean>(false);
 
+  // Voice Note Audio Player State
+  const [isVoicePlaying, setIsVoicePlaying] = useState<boolean>(false);
+  const [voiceProgress, setVoiceProgress] = useState<number>(0);
+  const [voiceDuration, setVoiceDuration] = useState<number>(102); // 1:42 fallback
+  const [voiceCurrentTime, setVoiceCurrentTime] = useState<number>(0);
+  const [isVoiceMuted, setIsVoiceMuted] = useState<boolean>(false);
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   const paragraphs = letter.body.split('\n\n').filter(Boolean);
+
+  // Audio setup
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleLoadedMetadata = () => {
+      if (audio.duration && !isNaN(audio.duration) && audio.duration > 0) {
+        setVoiceDuration(audio.duration);
+      }
+    };
+
+    const handleTimeUpdate = () => {
+      setVoiceCurrentTime(audio.currentTime);
+      if (audio.duration) {
+        setVoiceProgress((audio.currentTime / audio.duration) * 100);
+      }
+    };
+
+    const handleEnded = () => {
+      setIsVoicePlaying(false);
+      setVoiceProgress(0);
+      setVoiceCurrentTime(0);
+      vaultAudio.playCelebrationBurst();
+    };
+
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('ended', handleEnded);
+
+    return () => {
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('ended', handleEnded);
+      audio.pause();
+    };
+  }, [voiceNote?.audioUrl]);
+
+  const toggleVoicePlay = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isVoicePlaying) {
+      audio.pause();
+      setIsVoicePlaying(false);
+    } else {
+      audio.play().then(() => {
+        setIsVoicePlaying(true);
+        vaultAudio.playHeartCollect();
+      }).catch(() => {
+        // Fallback simulation if browser blocks external MP3
+        setIsVoicePlaying(true);
+        vaultAudio.playQuizSuccess();
+      });
+    }
+  };
+
+  const handleVoiceSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const targetPercent = Number(e.target.value);
+    const audio = audioRef.current;
+    if (audio && voiceDuration) {
+      const targetTime = (targetPercent / 100) * voiceDuration;
+      audio.currentTime = targetTime;
+      setVoiceCurrentTime(targetTime);
+      setVoiceProgress(targetPercent);
+    }
+  };
+
+  const toggleVoiceMute = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.muted = !isVoiceMuted;
+    setIsVoiceMuted(!isVoiceMuted);
+  };
+
+  const formatAudioTime = (seconds: number) => {
+    if (isNaN(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
 
   const handleBreakSeal = () => {
     if (isBreaking || !isSealed) return;
@@ -47,12 +157,15 @@ export const ScreenLetter: React.FC = () => {
   };
 
   const handleFinish = () => {
+    if (audioRef.current) audioRef.current.pause();
     vaultAudio.playCelebrationBurst();
     triggerFireworks();
     setScreen('final');
   };
 
   const handleReseal = () => {
+    if (audioRef.current) audioRef.current.pause();
+    setIsVoicePlaying(false);
     vaultAudio.playSoftTransition();
     setIsSealed(true);
     setRevealedParagraphs(1);
@@ -60,7 +173,16 @@ export const ScreenLetter: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-[85vh] flex flex-col items-center justify-center px-4 sm:px-6 py-10 max-w-3xl mx-auto">
+    <div className="relative min-h-[calc(100vh-5.5rem)] flex flex-col items-center justify-center px-4 sm:px-6 py-10 max-w-3xl mx-auto">
+      {/* Hidden Audio Tag for Voice Note */}
+      {voiceNote?.audioUrl && (
+        <audio 
+          ref={audioRef} 
+          src={voiceNote.audioUrl} 
+          preload="metadata" 
+        />
+      )}
+
       {/* Soft warm reading halo */}
       <div className="absolute w-[36rem] h-[36rem] bg-rose-500/10 rounded-full blur-[140px] pointer-events-none" />
 
@@ -74,7 +196,7 @@ export const ScreenLetter: React.FC = () => {
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-sans tracking-widest uppercase bg-rose-500/10 text-rose-300 border border-rose-500/20">
             <Feather className="w-3.5 h-3.5 text-rose-400" />
-            <span>A PERSONAL LETTER</span>
+            <span>A PERSONAL CONFESSION</span>
           </div>
 
           <h2 className="text-2xl sm:text-4xl font-serif text-white tracking-tight leading-snug">
@@ -99,43 +221,10 @@ export const ScreenLetter: React.FC = () => {
                   {/* Velvet Fabric Grain & Shimmer */}
                   <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_50%_0%,_rgba(255,143,163,0.3)_0%,_transparent_60%)] pointer-events-none" />
 
-                  {/* Envelope Flap Lines (SVG) */}
-                  <svg
-                    className="absolute inset-0 w-full h-full pointer-events-none opacity-25"
-                    viewBox="0 0 500 320"
-                    preserveAspectRatio="none"
-                  >
-                    <path
-                      d="M 0 0 L 250 170 L 500 0"
-                      fill="none"
-                      stroke="url(#envelopeStroke)"
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M 0 320 L 190 140"
-                      fill="none"
-                      stroke="url(#envelopeStroke)"
-                      strokeWidth="1.5"
-                    />
-                    <path
-                      d="M 500 320 L 310 140"
-                      fill="none"
-                      stroke="url(#envelopeStroke)"
-                      strokeWidth="1.5"
-                    />
-                    <defs>
-                      <linearGradient id="envelopeStroke" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#e05a88" />
-                        <stop offset="50%" stopColor="#ff8fa3" />
-                        <stop offset="100%" stopColor="#9d72ff" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
+                  {/* Envelope Flap Fold Lines */}
+                  <div className="absolute top-0 inset-x-0 h-1/2 border-b border-rose-500/20 [clip-path:polygon(0_0,50%_100%,100%_0)] bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
 
-                  {/* Satin Ribbon Band */}
-                  <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-8 bg-gradient-to-r from-rose-950 via-rose-700/60 to-rose-950 border-t border-b border-rose-400/30 pointer-events-none" />
-
-                  {/* Top Note */}
+                  {/* Top Stamp Text */}
                   <div className="relative z-10 pt-2 space-y-1">
                     <span className="text-[11px] font-sans uppercase tracking-widest text-rose-300/80">
                       Confidential &bull; Written For You
@@ -183,7 +272,6 @@ export const ScreenLetter: React.FC = () => {
                               transition={{ duration: 0.6 }}
                               className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-[#940d21] rounded-br-full border border-amber-300/50"
                             />
-                            {/* Golden Sparkle Burst */}
                             <motion.div
                               animate={{ scale: [1, 2.5], opacity: [1, 0] }}
                               transition={{ duration: 0.5 }}
@@ -202,7 +290,6 @@ export const ScreenLetter: React.FC = () => {
                         )}
                       </div>
 
-                      {/* Halo Pulse behind the seal */}
                       <div className="absolute inset-0 rounded-full bg-rose-500/20 blur-xl animate-pulse pointer-events-none" />
                     </motion.button>
                   </div>
@@ -225,16 +312,121 @@ export const ScreenLetter: React.FC = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20 }}
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full"
+              className="w-full space-y-6"
             >
-              <TiltCard maxTilt={5} scale={1.01} className="w-full">
+              {/* VOICE NOTE AUDIO CAPSULE WIDGET (USER REQUESTED FEATURE!) */}
+              {voiceNote?.enabled !== false && (
+                <TiltCard maxTilt={4} scale={1.01} className="w-full">
+                  <div className="vault-card rounded-2xl p-5 sm:p-6 border border-rose-500/40 bg-gradient-to-r from-rose-950/50 via-midnight-900/80 to-violet-950/50 backdrop-blur-xl shadow-glow-rose space-y-4">
+                    {/* Header */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-rose-500/20 border border-rose-400/40 flex items-center justify-center text-rose-300">
+                          <Mic className="w-4 h-4 animate-pulse" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs sm:text-sm font-sans font-medium text-white tracking-wide">
+                            {voiceNote?.title || 'Personal Voice Note'}
+                          </h4>
+                          <p className="text-[11px] font-sans text-rose-300/80">
+                            Recorded with infinite love &bull; {voiceNote?.senderName || 'For You'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={toggleVoiceMute}
+                        className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
+                        title={isVoiceMuted ? 'Unmute voice note' : 'Mute voice note'}
+                      >
+                        {isVoiceMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+
+                    {/* Dynamic Waveform Visualizer */}
+                    <div className="flex items-center justify-between gap-1 h-12 px-2 py-1 bg-midnight-950/60 rounded-xl border border-white/5 overflow-hidden">
+                      {WAVEFORM_BARS.map((height, idx) => {
+                        const barProgress = (idx / WAVEFORM_BARS.length) * 100;
+                        const isPlayed = barProgress <= voiceProgress;
+
+                        return (
+                          <motion.div
+                            key={idx}
+                            animate={{
+                              height: isVoicePlaying
+                                ? [
+                                    `${Math.max(15, height * 0.4)}%`,
+                                    `${Math.min(100, height * (1 + Math.sin(idx + voiceCurrentTime * 4) * 0.35))}%`,
+                                    `${Math.max(20, height * 0.6)}%`,
+                                  ]
+                                : `${height}%`,
+                            }}
+                            transition={{
+                              duration: 0.4,
+                              repeat: isVoicePlaying ? Infinity : 0,
+                              repeatType: 'mirror',
+                              delay: (idx % 5) * 0.05,
+                            }}
+                            className={`flex-1 rounded-full transition-colors duration-200 ${
+                              isPlayed
+                                ? 'bg-gradient-to-t from-rose-500 to-rose-300 shadow-[0_0_8px_rgba(224,90,136,0.6)]'
+                                : 'bg-slate-700/60'
+                            }`}
+                            style={{ minWidth: '2px' }}
+                          />
+                        );
+                      })}
+                    </div>
+
+                    {/* Audio Scrubbing Bar & Controls */}
+                    <div className="space-y-2">
+                      <input
+                        type="range"
+                        min={0}
+                        max={100}
+                        value={voiceProgress}
+                        onChange={handleVoiceSeek}
+                        className="w-full h-1.5 bg-midnight-950 rounded-lg appearance-none cursor-pointer accent-rose-400"
+                      />
+
+                      <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
+                        <span>{formatAudioTime(voiceCurrentTime)}</span>
+                        <span>{voiceNote?.duration || formatAudioTime(voiceDuration)}</span>
+                      </div>
+                    </div>
+
+                    {/* Big Center Play/Pause Button */}
+                    <div className="flex items-center justify-center pt-1">
+                      <button
+                        onClick={toggleVoicePlay}
+                        className="flex items-center gap-2.5 px-6 py-2.5 rounded-full bg-gradient-to-r from-rose-500 to-violet-600 hover:from-rose-400 hover:to-violet-500 text-white font-sans text-xs tracking-widest uppercase font-medium shadow-glow-rose hover:scale-105 active:scale-95 transition-all"
+                      >
+                        {isVoicePlaying ? (
+                          <>
+                            <Pause className="w-3.5 h-3.5 fill-white" />
+                            <span>Pause Voice Note</span>
+                          </>
+                        ) : (
+                          <>
+                            <Play className="w-3.5 h-3.5 fill-white ml-0.5" />
+                            <span>Listen To Voice Note</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </TiltCard>
+              )}
+
+              {/* PARCHMENT LETTER CARD */}
+              <TiltCard maxTilt={4} scale={1.005} className="w-full">
                 <div className="vault-card rounded-3xl p-7 sm:p-12 border border-rose-500/30 shadow-2xl relative space-y-6">
                   {/* Subtle Heart Watermark */}
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-5">
                     <Heart className="w-96 h-96 text-rose-300 fill-rose-300" />
                   </div>
 
-                  {/* Broken Wax Seal Keepsake Badge at top right */}
+                  {/* Reseal Keepsake Badge */}
                   <div className="absolute top-6 right-6 flex items-center gap-2">
                     <button
                       onClick={handleReseal}
@@ -278,7 +470,7 @@ export const ScreenLetter: React.FC = () => {
                     >
                       <div className="space-y-1 text-center sm:text-left">
                         <p className="text-xs font-sans uppercase tracking-widest text-slate-400">
-                          Written with love
+                          Written with infinite love
                         </p>
                         <p className="font-handwriting text-3xl sm:text-4xl text-rose-300">
                           {letter.signature}
@@ -329,7 +521,7 @@ export const ScreenLetter: React.FC = () => {
                     className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-gradient-to-r from-rose-500 via-rose-600 to-violet-600 text-white font-sans text-xs tracking-widest uppercase font-medium shadow-glow-rose hover:scale-[1.03] active:scale-[0.98] transition-all"
                   >
                     <Sparkles className="w-4 h-4 text-rose-200" />
-                    <span>One Final Whisper</span>
+                    <span>Step Into Our Forever Closure</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </motion.div>

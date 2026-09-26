@@ -40,7 +40,7 @@ export const ScreenQuestions: React.FC = () => {
 
     if (isLastQuestion) {
       vaultAudio.playStarConnect();
-      setScreen('constellation');
+      setScreen('timeline');
     } else {
       vaultAudio.playSoftTransition();
       setCurrentIndex((prev) => prev + 1);
@@ -52,17 +52,17 @@ export const ScreenQuestions: React.FC = () => {
       <div className="text-center py-20">
         <p className="text-slate-400">No questions configured.</p>
         <button
-          onClick={() => setScreen('constellation')}
+          onClick={() => setScreen('timeline')}
           className="mt-4 px-6 py-2 rounded-full bg-rose-500 text-white font-sans text-xs tracking-wider"
         >
-          Proceed to Constellation
+          Proceed to Our Story
         </button>
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-[85vh] flex flex-col items-center justify-center px-4 sm:px-6 py-8">
+    <div className="relative min-h-[calc(100vh-5.5rem)] flex flex-col items-center justify-center px-4 sm:px-6 py-8">
       {/* Top Constellation Progress Bar */}
       <div className="w-full max-w-xl mx-auto mb-8 flex items-center justify-between text-xs font-sans tracking-widest text-slate-400">
         <div className="flex items-center gap-2">

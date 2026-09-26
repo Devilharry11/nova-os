@@ -10,7 +10,11 @@ import type {
   VideoConfig,
   TypographyItem,
   InstaTrack,
-  InstaMusicConfig
+  InstaMusicConfig,
+  TimelineMilestone,
+  LoveReason,
+  BucketListItem,
+  ChatGptSurpriseConfig
 } from '../types/heartVault';
 import { DEFAULT_EXPERIENCE } from '../data/defaultExperience';
 import { vaultAudio } from '../utils/vaultAudio';
@@ -32,6 +36,25 @@ interface ExperienceContextType {
   updateTypographyItem: (item: TypographyItem) => void;
   addTypographyItem: (item: TypographyItem) => void;
   deleteTypographyItem: (id: string) => void;
+  
+  // Love Story Timeline
+  updateTimelineMilestone: (milestone: TimelineMilestone) => void;
+  addTimelineMilestone: (milestone: TimelineMilestone) => void;
+  deleteTimelineMilestone: (id: string) => void;
+
+  // Reasons Why I Love You
+  updateLoveReason: (reason: LoveReason) => void;
+  addLoveReason: (reason: LoveReason) => void;
+  deleteLoveReason: (id: string) => void;
+
+  // Couple Bucket List
+  toggleBucketItem: (id: string) => void;
+  addBucketItem: (item: BucketListItem) => void;
+  deleteBucketItem: (id: string) => void;
+
+  // ChatGPT AI Surprise
+  updateChatGpt: (patch: Partial<ChatGptSurpriseConfig>) => void;
+
   resetToDefaults: () => void;
   
   // Instagram Background Music Engine
@@ -102,6 +125,22 @@ export const ExperienceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
                 ...parsed,
                 music: { ...DEFAULT_EXPERIENCE.music, ...(parsed.music || {}) },
                 video: { ...DEFAULT_EXPERIENCE.video, ...(parsed.video || {}) },
+                letter: {
+                  ...DEFAULT_EXPERIENCE.letter,
+                  ...(parsed.letter || {}),
+                  voiceNote: {
+                    ...DEFAULT_EXPERIENCE.letter.voiceNote,
+                    ...(parsed.letter?.voiceNote || {}),
+                  },
+                },
+                timeline: parsed.timeline && parsed.timeline.length > 0 ? parsed.timeline : DEFAULT_EXPERIENCE.timeline,
+                loveReasons: parsed.loveReasons && parsed.loveReasons.length > 0 ? parsed.loveReasons : DEFAULT_EXPERIENCE.loveReasons,
+                bucketList: parsed.bucketList && parsed.bucketList.length > 0 ? parsed.bucketList : DEFAULT_EXPERIENCE.bucketList,
+                chatgpt: {
+                  ...DEFAULT_EXPERIENCE.chatgpt,
+                  ...(parsed.chatgpt || {}),
+                },
+                startDate: parsed.startDate || DEFAULT_EXPERIENCE.startDate,
                 instaMusic: {
                   ...DEFAULT_EXPERIENCE.instaMusic,
                   ...(parsed.instaMusic || {}),
@@ -144,6 +183,22 @@ export const ExperienceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           ...parsed,
           music: { ...DEFAULT_EXPERIENCE.music, ...(parsed.music || {}) },
           video: { ...DEFAULT_EXPERIENCE.video, ...(parsed.video || {}) },
+          letter: {
+            ...DEFAULT_EXPERIENCE.letter,
+            ...(parsed.letter || {}),
+            voiceNote: {
+              ...DEFAULT_EXPERIENCE.letter.voiceNote,
+              ...(parsed.letter?.voiceNote || {}),
+            },
+          },
+          timeline: parsed.timeline && parsed.timeline.length > 0 ? parsed.timeline : DEFAULT_EXPERIENCE.timeline,
+          loveReasons: parsed.loveReasons && parsed.loveReasons.length > 0 ? parsed.loveReasons : DEFAULT_EXPERIENCE.loveReasons,
+          bucketList: parsed.bucketList && parsed.bucketList.length > 0 ? parsed.bucketList : DEFAULT_EXPERIENCE.bucketList,
+          chatgpt: {
+            ...DEFAULT_EXPERIENCE.chatgpt,
+            ...(parsed.chatgpt || {}),
+          },
+          startDate: parsed.startDate || DEFAULT_EXPERIENCE.startDate,
           instaMusic: {
             ...DEFAULT_EXPERIENCE.instaMusic,
             ...(parsed.instaMusic || {}),
@@ -407,6 +462,81 @@ export const ExperienceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }));
   };
 
+  // Timeline handlers
+  const updateTimelineMilestone = (milestone: TimelineMilestone) => {
+    setConfig((prev) => ({
+      ...prev,
+      timeline: prev.timeline.map((m) => (m.id === milestone.id ? milestone : m)),
+    }));
+  };
+
+  const addTimelineMilestone = (milestone: TimelineMilestone) => {
+    setConfig((prev) => ({
+      ...prev,
+      timeline: [...prev.timeline, milestone],
+    }));
+  };
+
+  const deleteTimelineMilestone = (id: string) => {
+    setConfig((prev) => ({
+      ...prev,
+      timeline: prev.timeline.filter((m) => m.id !== id),
+    }));
+  };
+
+  // Love Reasons handlers
+  const updateLoveReason = (reason: LoveReason) => {
+    setConfig((prev) => ({
+      ...prev,
+      loveReasons: prev.loveReasons.map((r) => (r.id === reason.id ? reason : r)),
+    }));
+  };
+
+  const addLoveReason = (reason: LoveReason) => {
+    setConfig((prev) => ({
+      ...prev,
+      loveReasons: [...prev.loveReasons, reason],
+    }));
+  };
+
+  const deleteLoveReason = (id: string) => {
+    setConfig((prev) => ({
+      ...prev,
+      loveReasons: prev.loveReasons.filter((r) => r.id !== id),
+    }));
+  };
+
+  // Bucket list handlers
+  const toggleBucketItem = (id: string) => {
+    setConfig((prev) => ({
+      ...prev,
+      bucketList: prev.bucketList.map((b) => (b.id === id ? { ...b, completed: !b.completed } : b)),
+    }));
+    vaultAudio.playHeartCollect();
+  };
+
+  const addBucketItem = (item: BucketListItem) => {
+    setConfig((prev) => ({
+      ...prev,
+      bucketList: [...prev.bucketList, item],
+    }));
+  };
+
+  const deleteBucketItem = (id: string) => {
+    setConfig((prev) => ({
+      ...prev,
+      bucketList: prev.bucketList.filter((b) => b.id !== id),
+    }));
+  };
+
+  // ChatGPT Surprise handler
+  const updateChatGpt = (patch: Partial<ChatGptSurpriseConfig>) => {
+    setConfig((prev) => ({
+      ...prev,
+      chatgpt: { ...prev.chatgpt, ...patch },
+    }));
+  };
+
   const resetToDefaults = () => {
     setConfig(DEFAULT_EXPERIENCE);
     localStorage.removeItem(STORAGE_KEY);
@@ -470,6 +600,18 @@ export const ExperienceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         updateTypographyItem,
         addTypographyItem,
         deleteTypographyItem,
+        // Love Story Timeline
+        updateTimelineMilestone,
+        addTimelineMilestone,
+        deleteTimelineMilestone,
+        // Reasons Why I Love You
+        updateLoveReason,
+        addLoveReason,
+        deleteLoveReason,
+        // Couple Bucket List
+        toggleBucketItem,
+        addBucketItem,
+        deleteBucketItem,
         resetToDefaults,
         // Instagram Background Music
         isInstaPlaying,
@@ -505,6 +647,7 @@ export const ExperienceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         activeMemoryIndex,
         setActiveMemoryIndex,
         restartExperience,
+        updateChatGpt,
       }}
     >
       {children}

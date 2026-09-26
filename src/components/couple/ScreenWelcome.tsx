@@ -12,13 +12,13 @@ export const ScreenWelcome: React.FC = () => {
   const handleStart = () => {
     vaultAudio.playHeartCollect();
     setIsInstaPlaying(true);
-    setScreen('questions');
+    setScreen('timeline');
   };
 
   return (
-    <div className="relative min-h-[85vh] flex flex-col items-center justify-center text-center px-4 sm:px-6">
+    <div className="relative min-h-[calc(100vh-5.5rem)] flex flex-col items-center justify-center text-center px-4 sm:px-6 py-8">
       {/* Soft central halo */}
-      <div className="absolute w-[28rem] h-[28rem] rounded-full bg-rose-500/10 blur-[100px] pointer-events-none" />
+      <div className="absolute w-[36rem] h-[36rem] rounded-full bg-rose-500/10 blur-[130px] pointer-events-none" />
 
       <TiltCard maxTilt={4} scale={1.005} glare={false} className="w-full max-w-2xl">
         <motion.div

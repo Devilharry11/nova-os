@@ -1,16 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, Music, Sliders, Heart } from 'lucide-react';
+import { Volume2, VolumeX, Music, Sliders, Heart, Maximize, Minimize } from 'lucide-react';
 import { useExperience } from '../../context/ExperienceContext';
 import { vaultAudio } from '../../utils/vaultAudio';
 import { ScreenWelcome } from './ScreenWelcome';
 import { ScreenQuestions } from './ScreenQuestions';
-import { ScreenConstellation } from './ScreenConstellation';
+import { ScreenTimeline } from './ScreenTimeline';
 import { ScreenHeartPortal } from './ScreenHeartPortal';
 import { ScreenScrapbook } from './ScreenScrapbook';
+import { ScreenLoveNotes } from './ScreenLoveNotes';
+import { ScreenBucketList } from './ScreenBucketList';
 import { ScreenMusic } from './ScreenMusic';
 import { ScreenVideo } from './ScreenVideo';
 import { ScreenLetter } from './ScreenLetter';
 import { ScreenFinalSecret } from './ScreenFinalSecret';
+import { ScreenChatGpt } from './ScreenChatGpt';
 
 export const CoupleExperience: React.FC = () => {
   const { 
@@ -23,8 +26,27 @@ export const CoupleExperience: React.FC = () => {
   } = useExperience();
   const [isMuted, setIsMuted] = useState<boolean>(vaultAudio.getIsMuted());
   const [isMusicOn, setIsMusicOn] = useState<boolean>(false);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [logoClickCount, setLogoClickCount] = useState<number>(0);
   const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Sync fullscreen change events
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    vaultAudio.playCardHover();
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  };
 
   // Keyboard shortcut: Ctrl+Shift+H or Alt+H to trigger Host PIN modal
   useEffect(() => {
@@ -77,12 +99,19 @@ export const CoupleExperience: React.FC = () => {
         return <ScreenWelcome />;
       case 'questions':
         return <ScreenQuestions />;
-      case 'constellation':
-        return <ScreenConstellation />;
+      case 'timeline':
+        return <ScreenTimeline />;
       case 'portal':
+      case 'constellation':
         return <ScreenHeartPortal />;
       case 'scrapbook':
         return <ScreenScrapbook />;
+      case 'chatgpt':
+        return <ScreenChatGpt />;
+      case 'loveNotes':
+        return <ScreenLoveNotes />;
+      case 'bucketList':
+        return <ScreenBucketList />;
       case 'music':
         return <ScreenMusic />;
       case 'video':
@@ -98,14 +127,11 @@ export const CoupleExperience: React.FC = () => {
 
   const SCREENS: { id: typeof currentScreen; label: string }[] = [
     { id: 'welcome', label: 'Welcome' },
-    { id: 'questions', label: 'Questions' },
-    { id: 'constellation', label: 'Stars' },
-    { id: 'portal', label: 'Portal' },
-    { id: 'scrapbook', label: 'Scrapbook' },
-    { id: 'music', label: 'Song' },
-    { id: 'video', label: 'Video' },
-    { id: 'letter', label: 'Letter' },
-    { id: 'final', label: 'Closure' },
+    { id: 'timeline', label: 'Our Story' },
+    { id: 'scrapbook', label: 'Memories' },
+    { id: 'chatgpt', label: 'LoveGPT AI' },
+    { id: 'letter', label: 'Letter & Voice' },
+    { id: 'final', label: 'Keepsake' },
   ];
 
   return (
@@ -172,6 +198,19 @@ export const CoupleExperience: React.FC = () => {
             title={isMuted ? 'Unmute Sound FX' : 'Mute Sound FX'}
           >
             {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+          </button>
+
+          {/* Fullscreen / Full Scene Mode Toggle */}
+          <button
+            onClick={toggleFullscreen}
+            className={`p-2 rounded-full border transition-all ${
+              isFullscreen
+                ? 'bg-rose-500/20 border-rose-500/40 text-rose-300 shadow-sm shadow-rose-500/30'
+                : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+            }`}
+            title={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen / Full Scene Mode'}
+          >
+            {isFullscreen ? <Minimize className="w-3.5 h-3.5" /> : <Maximize className="w-3.5 h-3.5" />}
           </button>
 
           {/* Studio Mode Button: ONLY SHOWN IF USER IS VERIFIED HOST */}

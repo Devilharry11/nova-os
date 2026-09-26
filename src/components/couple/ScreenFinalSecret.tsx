@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, RotateCcw, Sliders, Check, Share2, Sparkles, Flame } from 'lucide-react';
+import { 
+  Heart, 
+  RotateCcw, 
+  Sliders, 
+  Check, 
+  Share2, 
+  Sparkles, 
+  Flame, 
+  Award, 
+  Download
+} from 'lucide-react';
 import { useExperience } from '../../context/ExperienceContext';
 import { vaultAudio } from '../../utils/vaultAudio';
 import { CinematicTypography } from '../common/CinematicTypography';
@@ -10,6 +20,7 @@ import { triggerFireworks } from '../../utils/celebration';
 export const ScreenFinalSecret: React.FC = () => {
   const { config, restartExperience, setViewMode, isHostAuthenticated, generatePartnerShareLink } = useExperience();
   const [copied, setCopied] = useState(false);
+  const [savedKeepsake, setSavedKeepsake] = useState(false);
 
   useEffect(() => {
     // Grand celebration fireworks on arrival
@@ -34,10 +45,23 @@ export const ScreenFinalSecret: React.FC = () => {
     vaultAudio.playCelebrationBurst();
   };
 
+  const handleSaveKeepsake = () => {
+    vaultAudio.playSoulSync();
+    triggerFireworks();
+    setSavedKeepsake(true);
+    setTimeout(() => setSavedKeepsake(false), 3000);
+    // Trigger browser print or save dialog
+    window.print();
+  };
+
+  const startDateFormatted = config.startDate 
+    ? new Date(config.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    : 'October 14, 2023';
+
   return (
-    <div className="relative min-h-[85vh] flex flex-col items-center justify-center px-4 sm:px-6 py-10 text-center max-w-2xl mx-auto">
+    <div className="relative min-h-[92vh] w-full flex flex-col items-center justify-center px-4 sm:px-6 py-12 text-center max-w-3xl mx-auto">
       {/* Background celestial pulse */}
-      <div className="absolute w-[30rem] h-[30rem] rounded-full bg-gradient-to-tr from-rose-500/15 to-violet-600/15 blur-[120px] pointer-events-none" />
+      <div className="absolute w-[36rem] h-[36rem] rounded-full bg-gradient-to-tr from-rose-500/15 via-violet-600/15 to-amber-500/10 blur-[140px] pointer-events-none" />
 
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -45,15 +69,16 @@ export const ScreenFinalSecret: React.FC = () => {
         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 space-y-8 w-full"
       >
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-sans tracking-widest uppercase bg-rose-500/10 text-rose-300 border border-rose-500/20">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-sans tracking-widest uppercase bg-rose-500/10 text-rose-300 border border-rose-500/20 shadow-glow-rose">
           <Sparkles className="w-3.5 h-3.5 text-rose-400" />
-          <span>VAULT SEALED IN ETERNITY</span>
+          <span>VAULT SEALED FOR ETERNITY</span>
+          <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-400/40" />
         </div>
 
         {/* 3D Tilt Final Romantic Message Card */}
-        <TiltCard maxTilt={8} scale={1.02} className="w-full">
+        <TiltCard maxTilt={6} scale={1.01} className="w-full">
           <div className="vault-card rounded-3xl p-8 sm:p-12 border border-rose-500/30 shadow-glow-rose space-y-6">
-            <div className="w-16 h-16 mx-auto rounded-full bg-rose-500/20 border border-rose-400/40 flex items-center justify-center text-rose-400">
+            <div className="w-16 h-16 mx-auto rounded-full bg-rose-500/20 border border-rose-400/40 flex items-center justify-center text-rose-400 shadow-[0_0_20px_rgba(224,90,136,0.5)]">
               <Heart className="w-8 h-8 fill-rose-400/40 animate-pulse" />
             </div>
 
@@ -79,8 +104,77 @@ export const ScreenFinalSecret: React.FC = () => {
             })()}
 
             <p className="text-sm text-slate-300/80 font-sans font-light">
-              Created with infinite tenderness for {config.coupleNames}.
+              Created with infinite tenderness &bull; {config.coupleNames}
             </p>
+          </div>
+        </TiltCard>
+
+        {/* 📜 ETERNAL LOVE PASSPORT & CELESTIAL KEEPSAKE */}
+        <TiltCard maxTilt={4} scale={1.01} className="w-full">
+          <div className="vault-card rounded-3xl p-6 sm:p-8 border-2 border-amber-300/30 bg-gradient-to-br from-[#1b122c] via-[#110a1f] to-[#0a0614] shadow-2xl relative overflow-hidden text-left space-y-6">
+            {/* Gold Ribbon Watermark */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/10 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+              <div className="flex items-center gap-2.5">
+                <Award className="w-5 h-5 text-amber-300" />
+                <span className="text-xs font-sans uppercase tracking-widest text-amber-200 font-medium">
+                  Celestial Certificate of Eternal Love
+                </span>
+              </div>
+              <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10">
+                VAULT ID: #HV-INF-2026
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-sans">
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-slate-400 block">Souls Bound</span>
+                <span className="font-serif text-lg text-white font-medium">{config.coupleNames}</span>
+              </div>
+
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-slate-400 block">Genesis Date</span>
+                <span className="font-mono text-sm text-rose-300">{startDateFormatted}</span>
+              </div>
+
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-slate-400 block">Validity</span>
+                <span className="font-serif text-sm text-amber-200">Across All Lifetimes &amp; Universes</span>
+              </div>
+
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-slate-400 block">Status</span>
+                <span className="inline-flex items-center gap-1 text-emerald-400 font-medium">
+                  <Sparkles className="w-3 h-3" /> Sealed &amp; Eternal
+                </span>
+              </div>
+            </div>
+
+            {/* Bottom Seal & Download button */}
+            <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-rose-500 to-amber-600 border border-amber-300/50 flex items-center justify-center text-amber-200 shadow-md">
+                  <Heart className="w-6 h-6 fill-amber-200" />
+                </div>
+                <div>
+                  <p className="font-handwriting text-2xl text-rose-300 leading-none">
+                    {config.letter.signature}
+                  </p>
+                  <span className="text-[10px] text-slate-400 font-sans uppercase tracking-widest">
+                    Signed in Starlight
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={handleSaveKeepsake}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-400/40 text-xs font-sans uppercase tracking-wider transition-all hover:scale-105 active:scale-95 shadow-sm"
+              >
+                <Download className="w-3.5 h-3.5 text-amber-300" />
+                <span>{savedKeepsake ? 'Printing Keepsake...' : 'Print / Save Keepsake'}</span>
+              </button>
+            </div>
           </div>
         </TiltCard>
 

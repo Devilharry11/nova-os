@@ -93,6 +93,96 @@ export const LetterEditor: React.FC = () => {
               className="w-full p-3 rounded-xl bg-midnight-950/80 border border-white/10 text-white text-sm font-sans focus:outline-none focus:border-rose-400"
             />
           </div>
+
+          {/* Voice Note Audio Capsule Settings (User-requested feature) */}
+          <div className="p-5 rounded-2xl bg-midnight-900/60 border border-rose-500/30 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Heart className="w-4 h-4 text-rose-400" />
+                <span className="text-xs font-sans uppercase tracking-wider text-rose-200 font-medium">
+                  Voice Note Audio Capsule
+                </span>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={letter.voiceNote?.enabled !== false}
+                  onChange={(e) => updateLetter({
+                    voiceNote: {
+                      enabled: e.target.checked,
+                      title: letter.voiceNote?.title || 'A Little Voice Note For You',
+                      senderName: letter.voiceNote?.senderName || 'Julian',
+                      audioUrl: letter.voiceNote?.audioUrl || 'https://raw.githubusercontent.com/rafaelreis-hotmart/Audio-Sample-files/master/sample.mp3',
+                      duration: letter.voiceNote?.duration || '1:42',
+                    }
+                  })}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-500"></div>
+              </label>
+            </div>
+
+            {letter.voiceNote?.enabled !== false && (
+              <div className="space-y-3 pt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-sans text-slate-400">Voice Note Title</label>
+                    <input
+                      type="text"
+                      value={letter.voiceNote?.title || ''}
+                      onChange={(e) => updateLetter({
+                        voiceNote: {
+                          enabled: true,
+                          title: e.target.value,
+                          senderName: letter.voiceNote?.senderName || '',
+                          audioUrl: letter.voiceNote?.audioUrl || '',
+                          duration: letter.voiceNote?.duration || '1:42',
+                        }
+                      })}
+                      className="w-full p-2.5 rounded-xl bg-midnight-950/80 border border-white/10 text-white text-xs"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-sans text-slate-400">Sender Label</label>
+                    <input
+                      type="text"
+                      value={letter.voiceNote?.senderName || ''}
+                      onChange={(e) => updateLetter({
+                        voiceNote: {
+                          enabled: true,
+                          title: letter.voiceNote?.title || '',
+                          senderName: e.target.value,
+                          audioUrl: letter.voiceNote?.audioUrl || '',
+                          duration: letter.voiceNote?.duration || '1:42',
+                        }
+                      })}
+                      className="w-full p-2.5 rounded-xl bg-midnight-950/80 border border-white/10 text-white text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-sans text-slate-400">Audio URL (.mp3 / voice recording link)</label>
+                  <input
+                    type="url"
+                    value={letter.voiceNote?.audioUrl || ''}
+                    onChange={(e) => updateLetter({
+                      voiceNote: {
+                        enabled: true,
+                        title: letter.voiceNote?.title || '',
+                        senderName: letter.voiceNote?.senderName || '',
+                        audioUrl: e.target.value,
+                        duration: letter.voiceNote?.duration || '1:42',
+                      }
+                    })}
+                    placeholder="https://..."
+                    className="w-full p-2.5 rounded-xl bg-midnight-950/80 border border-white/10 text-white text-xs font-mono"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right Column: Live Mini Paper Preview */}

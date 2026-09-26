@@ -40,12 +40,22 @@ export type MemoryItem = {
 
 export type RevealStyle = 'fade' | 'typewriter' | 'handwritten' | 'paragraph';
 
+export type VoiceNoteConfig = {
+  enabled: boolean;
+  title: string;
+  audioUrl: string;
+  duration?: string;
+  recordedDate?: string;
+  senderName?: string;
+};
+
 export type LetterConfig = {
   title: string;
   body: string;
   signature: string;
   finalMessage: string;
   revealStyle: RevealStyle;
+  voiceNote?: VoiceNoteConfig;
 };
 
 export type ThemePreset = 'midnight-violet' | 'rose-gold' | 'celestial-noir';
@@ -152,13 +162,57 @@ export type HostSecurityConfig = {
   requirePin: boolean;
 };
 
+export type TimelineMilestone = {
+  id: string;
+  title: string;
+  date: string;
+  location?: string;
+  description: string;
+  imageUrl?: string;
+  icon?: 'sparkles' | 'coffee' | 'heart' | 'car' | 'plane' | 'star' | 'camera';
+};
+
+export type LoveReason = {
+  id: string;
+  number: number;
+  title: string;
+  text: string;
+  category?: 'sweet' | 'humorous' | 'deep' | 'promise';
+};
+
+export type BucketListItem = {
+  id: string;
+  title: string;
+  category: 'travel' | 'romantic' | 'adventure' | 'cozy';
+  completed: boolean;
+  targetDate?: string;
+  note?: string;
+};
+
+export type ChatGptSurpriseConfig = {
+  enabled: boolean;
+  modelName: string;
+  partnerName: string;
+  partnerPhotoUrl: string;
+  defaultQuery: string;
+  aiResponseIntro: string;
+  aiVerdict: string;
+  compliments: string[];
+  tagline: string;
+};
+
 export type ExperienceConfig = {
   title: string;
   coupleNames: string;
+  startDate?: string;
   welcomeMessage: string;
   welcomeSubtext: string;
   questions: Question[];
+  timeline: TimelineMilestone[];
   memories: MemoryItem[];
+  loveReasons: LoveReason[];
+  bucketList: BucketListItem[];
+  chatgpt: ChatGptSurpriseConfig;
   theme: ThemeConfig;
   letter: LetterConfig;
   music: MusicConfig;
@@ -172,10 +226,15 @@ export type ExperienceConfig = {
 export type CoupleScreen = 
   | 'welcome' 
   | 'questions' 
-  | 'constellation' 
+  | 'timeline'
   | 'portal' 
   | 'scrapbook' 
-  | 'music'
-  | 'video'
+  | 'chatgpt'
+  | 'loveNotes'
+  | 'bucketList'
   | 'letter' 
-  | 'final';
+  | 'final'
+  | 'constellation'
+  | 'music'
+  | 'video';
+

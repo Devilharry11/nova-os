@@ -371,6 +371,230 @@ class VaultAudioEngine {
       // Ignored
     }
   }
+
+  // Realistic gentle dual lub-dub heartbeat sound
+  public playHeartbeatPulse() {
+    if (this.isMuted) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      // Lub (1st beat)
+      const osc1 = this.ctx.createOscillator();
+      const gain1 = this.ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(80, now);
+      osc1.frequency.exponentialRampToValueAtTime(45, now + 0.12);
+      gain1.gain.setValueAtTime(0.08, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+      osc1.connect(gain1);
+      gain1.connect(this.ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.15);
+
+      // Dub (2nd beat slightly softer, 120ms later)
+      const osc2 = this.ctx.createOscillator();
+      const gain2 = this.ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(70, now + 0.16);
+      osc2.frequency.exponentialRampToValueAtTime(40, now + 0.28);
+      gain2.gain.setValueAtTime(0.05, now + 0.16);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      osc2.connect(gain2);
+      gain2.connect(this.ctx.destination);
+      osc2.start(now + 0.16);
+      osc2.stop(now + 0.32);
+    } catch {
+      // Ignored
+    }
+  }
+
+  // Rising celestial frequency for biometric soul scan
+  public playBiometricScanTick(progress: number) {
+    if (this.isMuted) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      const baseFreq = 400 + progress * 8; // Rises from 400Hz to 1200Hz
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(baseFreq, now);
+
+      gain.gain.setValueAtTime(0.02, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.09);
+    } catch {
+      // Ignored
+    }
+  }
+
+  // Grand Soul Sync Supernova Burst
+  public playSoulSync() {
+    if (this.isMuted) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      const chords = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
+
+      chords.forEach((freq, idx) => {
+        const osc = this.ctx!.createOscillator();
+        const gain = this.ctx!.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.04);
+
+        gain.gain.setValueAtTime(0.001, now + idx * 0.04);
+        gain.gain.linearRampToValueAtTime(0.06, now + idx * 0.04 + 0.2);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.04 + 1.8);
+
+        osc.connect(gain);
+        gain.connect(this.ctx!.destination);
+
+        osc.start(now + idx * 0.04);
+        osc.stop(now + idx * 0.04 + 1.8);
+      });
+    } catch {
+      // Ignored
+    }
+  }
+
+  // Realistic Polaroid Camera Shutter Click & Film Whirr
+  public playCameraShutter() {
+    if (this.isMuted) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      // Shutter click (snap)
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(2200, now);
+      osc.frequency.exponentialRampToValueAtTime(300, now + 0.05);
+
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.05);
+
+      // Film ejection whirr
+      const whirrOsc = this.ctx.createOscillator();
+      const whirrGain = this.ctx.createGain();
+      whirrOsc.type = 'triangle';
+      whirrOsc.frequency.setValueAtTime(320, now + 0.06);
+      whirrOsc.frequency.linearRampToValueAtTime(450, now + 0.25);
+
+      whirrGain.gain.setValueAtTime(0.02, now + 0.06);
+      whirrGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
+
+      whirrOsc.connect(whirrGain);
+      whirrGain.connect(this.ctx.destination);
+      whirrOsc.start(now + 0.06);
+      whirrOsc.stop(now + 0.28);
+    } catch {
+      // Ignored
+    }
+  }
+
+  // Soft stardust scratch texture tick
+  public playScratchTick() {
+    if (this.isMuted) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      const randomFreq = 1600 + Math.random() * 800;
+      osc.frequency.setValueAtTime(randomFreq, now);
+
+      gain.gain.setValueAtTime(0.008, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.025);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.025);
+    } catch {
+      // Ignored
+    }
+  }
+
+  // Soft futuristic terminal typing tick for ChatGPT simulation
+  public playAiTypingTick() {
+    if (this.isMuted) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(1200 + Math.random() * 400, now);
+
+      gain.gain.setValueAtTime(0.005, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.018);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.02);
+    } catch {
+      // Ignored
+    }
+  }
+
+  // Grand AI Reveal Celestial Chime
+  public playAiRevealChime() {
+    if (this.isMuted) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      // High sparkling futuristic arpeggio: C6, E6, G6, B6, D7
+      const notes = [1046.50, 1318.51, 1567.98, 1975.53, 2349.32];
+      notes.forEach((f, idx) => {
+        const osc = this.ctx!.createOscillator();
+        const gain = this.ctx!.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f, now + idx * 0.05);
+
+        gain.gain.setValueAtTime(0.04, now + idx * 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.05 + 0.8);
+
+        osc.connect(gain);
+        gain.connect(this.ctx!.destination);
+        osc.start(now + idx * 0.05);
+        osc.stop(now + idx * 0.05 + 0.8);
+      });
+    } catch {
+      // Ignored
+    }
+  }
 }
 
 export const vaultAudio = new VaultAudioEngine();

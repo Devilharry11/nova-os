@@ -13,7 +13,11 @@ import {
   Video as VideoIcon,
   Type,
   KeyRound,
-  Radio
+  Radio,
+  Compass,
+  Gift,
+  Star,
+  Bot
 } from 'lucide-react';
 import { useExperience } from '../../context/ExperienceContext';
 import { vaultAudio } from '../../utils/vaultAudio';
@@ -148,6 +152,66 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ onSelectTab, onOpenPre
           </div>
           <div className="text-2xl font-serif text-white font-medium">{config.questions.length}</div>
           <div className="text-xs font-sans text-slate-400 mt-1">Personal Questions</div>
+        </div>
+
+        {/* Love Story Timeline */}
+        <div 
+          onClick={() => onSelectTab('timeline')}
+          className="p-5 rounded-2xl vault-glass border border-white/10 hover:border-rose-400/40 cursor-pointer transition-all hover:scale-[1.02] group"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <Compass className="w-5 h-5 text-rose-400" />
+            <span className="text-[10px] font-sans tracking-widest uppercase text-slate-400 group-hover:text-rose-300">
+              EDIT &rarr;
+            </span>
+          </div>
+          <div className="text-2xl font-serif text-white font-medium">{config.timeline?.length || 5}</div>
+          <div className="text-xs font-sans text-slate-400 mt-1">Our Story Milestones</div>
+        </div>
+
+        {/* LoveGPT AI Reveal */}
+        <div 
+          onClick={() => onSelectTab('chatgpt')}
+          className="p-5 rounded-2xl vault-glass border border-emerald-500/30 hover:border-emerald-400/60 cursor-pointer transition-all hover:scale-[1.02] group bg-gradient-to-b from-emerald-500/5 to-transparent"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <Bot className="w-5 h-5 text-emerald-400" />
+            <span className="text-[10px] font-sans tracking-widest uppercase text-emerald-300 group-hover:text-white">
+              CONFIGURE &rarr;
+            </span>
+          </div>
+          <div className="text-2xl font-serif text-white font-medium">LoveGPT</div>
+          <div className="text-xs font-sans text-slate-300 mt-1">&ldquo;Most Beautiful Girl&rdquo; Reveal</div>
+        </div>
+
+        {/* Love Notes Deck */}
+        <div 
+          onClick={() => onSelectTab('loveNotes')}
+          className="p-5 rounded-2xl vault-glass border border-white/10 hover:border-rose-400/40 cursor-pointer transition-all hover:scale-[1.02] group"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <Gift className="w-5 h-5 text-amber-400" />
+            <span className="text-[10px] font-sans tracking-widest uppercase text-slate-400 group-hover:text-amber-300">
+              EDIT &rarr;
+            </span>
+          </div>
+          <div className="text-2xl font-serif text-white font-medium">{config.loveReasons?.length || 8}</div>
+          <div className="text-xs font-sans text-slate-400 mt-1">Reasons Why I Love You</div>
+        </div>
+
+        {/* Bucket List */}
+        <div 
+          onClick={() => onSelectTab('bucketList')}
+          className="p-5 rounded-2xl vault-glass border border-white/10 hover:border-rose-400/40 cursor-pointer transition-all hover:scale-[1.02] group"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <Star className="w-5 h-5 text-pink-400" />
+            <span className="text-[10px] font-sans tracking-widest uppercase text-slate-400 group-hover:text-pink-300">
+              EDIT &rarr;
+            </span>
+          </div>
+          <div className="text-2xl font-serif text-white font-medium">{config.bucketList?.length || 6}</div>
+          <div className="text-xs font-sans text-slate-400 mt-1">Future Bucket Wishes</div>
         </div>
 
         {/* Memories */}

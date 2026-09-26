@@ -12,24 +12,35 @@ import {
   Music,
   Video as VideoIcon,
   Type,
-  Lock
+  Lock,
+  Compass,
+  Gift,
+  Star
 } from 'lucide-react';
 import { useExperience } from '../../context/ExperienceContext';
 import { vaultAudio } from '../../utils/vaultAudio';
 import { OverviewTab } from './OverviewTab';
 import { QuestionsEditor } from './QuestionsEditor';
+import { TimelineEditor } from './TimelineEditor';
 import { ScrapbookEditor } from './ScrapbookEditor';
+import { LoveNotesEditor } from './LoveNotesEditor';
+import { BucketListEditor } from './BucketListEditor';
 import { MusicEditor } from './MusicEditor';
 import { VideoEditor } from './VideoEditor';
 import { TypographyEditor } from './TypographyEditor';
 import { LetterEditor } from './LetterEditor';
 import { ThemeEditor } from './ThemeEditor';
+import { ChatGptEditor } from './ChatGptEditor';
 import { LivePreviewModal } from './LivePreviewModal';
 
 type StudioTab = 
   | 'overview' 
+  | 'timeline'
+  | 'chatgpt'
   | 'questions' 
   | 'scrapbook' 
+  | 'loveNotes'
+  | 'bucketList'
   | 'music'
   | 'video'
   | 'typography'
@@ -43,23 +54,35 @@ export const HostStudio: React.FC = () => {
 
   const TABS: { id: StudioTab; label: string; icon: React.ReactNode }[] = [
     { id: 'overview', label: 'Overview', icon: <LayoutDashboard className="w-4 h-4" /> },
-    { id: 'questions', label: 'Questions', icon: <HelpCircle className="w-4 h-4" /> },
+    { id: 'timeline', label: 'Our Story & Clock', icon: <Compass className="w-4 h-4" /> },
     { id: 'scrapbook', label: 'Scrapbook', icon: <Image className="w-4 h-4" /> },
-    { id: 'music', label: 'Music & Insta Songs', icon: <Music className="w-4 h-4" /> },
+    { id: 'chatgpt', label: 'LoveGPT AI Reveal', icon: <Sparkles className="w-4 h-4 text-emerald-400" /> },
+    { id: 'loveNotes', label: 'Love Notes Deck', icon: <Gift className="w-4 h-4" /> },
+    { id: 'bucketList', label: 'Future Bucket List', icon: <Star className="w-4 h-4" /> },
+    { id: 'music', label: 'Music & Reels Songs', icon: <Music className="w-4 h-4" /> },
     { id: 'video', label: 'Edit Video', icon: <VideoIcon className="w-4 h-4" /> },
     { id: 'typography', label: 'Typography', icon: <Type className="w-4 h-4" /> },
-    { id: 'letter', label: 'Love Letter', icon: <FileText className="w-4 h-4" /> },
+    { id: 'letter', label: 'Love Letter & Voice', icon: <FileText className="w-4 h-4" /> },
     { id: 'theme', label: 'Theme & Sound', icon: <Palette className="w-4 h-4" /> },
+    { id: 'questions', label: 'Questions (Optional)', icon: <HelpCircle className="w-4 h-4" /> },
   ];
 
   const renderTabContent = () => {
     switch (activeTab) {
       case 'overview':
         return <OverviewTab onSelectTab={(t) => setActiveTab(t as StudioTab)} onOpenPreview={() => setIsPreviewOpen(true)} />;
+      case 'timeline':
+        return <TimelineEditor />;
+      case 'chatgpt':
+        return <ChatGptEditor />;
       case 'questions':
         return <QuestionsEditor />;
       case 'scrapbook':
         return <ScrapbookEditor />;
+      case 'loveNotes':
+        return <LoveNotesEditor />;
+      case 'bucketList':
+        return <BucketListEditor />;
       case 'music':
         return <MusicEditor />;
       case 'video':
