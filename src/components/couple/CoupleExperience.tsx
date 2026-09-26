@@ -222,21 +222,25 @@ export const CoupleExperience: React.FC = () => {
             {isFullscreen ? <Minimize className="w-3.5 h-3.5" /> : <Maximize className="w-3.5 h-3.5" />}
           </button>
 
-          {/* Studio Mode Button: ONLY SHOWN IF USER IS VERIFIED HOST */}
-          {isHostAuthenticated && (
-            <button
-              onClick={() => {
-                vaultAudio.playSoftTransition();
+          {/* Admin Portal Button: ALWAYS VISIBLE */}
+          <button
+            onClick={() => {
+              vaultAudio.playCardHover();
+              if (isHostAuthenticated) {
                 setViewMode('studio');
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 to-rose-500/20 hover:from-amber-500/30 hover:to-rose-500/30 text-amber-200 text-xs font-sans tracking-wider border border-amber-500/40 shadow-sm transition-all"
-              title="Open Creator Host Studio (Verified Host)"
-            >
-              <Sliders className="w-3 h-3 text-amber-300" />
-              <span className="hidden sm:inline font-medium">Host Studio</span>
-              <span className="text-[9px] px-1 py-0.2 rounded bg-amber-400/20 text-amber-300 font-mono">HOST</span>
-            </button>
-          )}
+              } else {
+                setIsHostAuthModalOpen(true);
+              }
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/25 to-rose-500/25 hover:from-amber-500/35 hover:to-rose-500/35 text-amber-200 text-xs font-sans tracking-wider border border-amber-500/40 shadow-sm transition-all"
+            title="Open Admin Portal to add Photos, Videos & Song with Instagram Lyrics"
+          >
+            <Sliders className="w-3.5 h-3.5 text-amber-300" />
+            <span className="font-medium">Admin Portal</span>
+            <span className="text-[9px] px-1 py-0.2 rounded bg-amber-400/20 text-amber-300 font-mono">
+              {isHostAuthenticated ? 'ADMIN' : 'LOGIN'}
+            </span>
+          </button>
         </div>
       </header>
 

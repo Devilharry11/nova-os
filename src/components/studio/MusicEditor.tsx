@@ -30,7 +30,7 @@ export const MusicEditor: React.FC = () => {
   const music = config.music;
   const insta = config.instaMusic;
 
-  const [musicSection, setMusicSection] = useState<'insta' | 'anthem'>('insta');
+  const [musicSection, setMusicSection] = useState<'anthem' | 'insta'>('anthem');
 
   // Test play for featured song
   const [isPlayingTest, setIsPlayingTest] = useState(false);
@@ -46,6 +46,53 @@ export const MusicEditor: React.FC = () => {
   const [newAudioUrl, setNewAudioUrl] = useState('');
   const [newCategory, setNewCategory] = useState<'Romantic Reel' | 'Aesthetic Lofi' | 'Trending Duet' | 'Custom'>('Romantic Reel');
   const [showAddForm, setShowAddForm] = useState(false);
+
+  // Synced Lyrics State
+  const [showBulkLyrics, setShowBulkLyrics] = useState(false);
+  const [bulkLyricsText, setBulkLyricsText] = useState('');
+
+  const handleAddLyricLine = () => {
+    vaultAudio.playCardHover();
+    const currentLyrics = music.lyrics || [];
+    const lastTime = currentLyrics.length > 0 ? currentLyrics[currentLyrics.length - 1].time + 6 : 0;
+    const newLine = { time: lastTime, text: 'New romantic lyric line' };
+    updateMusic({ lyrics: [...currentLyrics, newLine] });
+  };
+
+  const handleUpdateLyricTime = (idx: number, time: number) => {
+    const currentLyrics = [...(music.lyrics || [])];
+    if (currentLyrics[idx]) {
+      currentLyrics[idx].time = time;
+      updateMusic({ lyrics: currentLyrics });
+    }
+  };
+
+  const handleUpdateLyricText = (idx: number, text: string) => {
+    const currentLyrics = [...(music.lyrics || [])];
+    if (currentLyrics[idx]) {
+      currentLyrics[idx].text = text;
+      updateMusic({ lyrics: currentLyrics });
+    }
+  };
+
+  const handleDeleteLyric = (idx: number) => {
+    vaultAudio.playCardHover();
+    const currentLyrics = (music.lyrics || []).filter((_, i) => i !== idx);
+    updateMusic({ lyrics: currentLyrics });
+  };
+
+  const handleApplyBulkLyrics = () => {
+    vaultAudio.playCelebrationBurst();
+    const lines = bulkLyricsText.split('\n').map((l) => l.trim()).filter(Boolean);
+    if (!lines.length) return;
+    const generated = lines.map((text, idx) => ({
+      time: idx * 5,
+      text: text.replace(/^line\s*\d+\s*:\s*/i, ''),
+    }));
+    updateMusic({ lyrics: generated });
+    setShowBulkLyrics(false);
+    setBulkLyricsText('');
+  };
 
   const toggleTestPlay = () => {
     const audio = audioTestRef.current;
@@ -593,21 +640,121 @@ export const MusicEditor: React.FC = () => {
                 />
               </div>
             </div>
+
+            {/* INSTAGRAM STORY TYPE SYNCED LYRICS BUILDER */}
+            <div className="space-y-4 pt-4 border-t border-white/10">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-sm font-sans font-medium text-white flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-rose-400" />
+                    <span>Instagram Story Synced Lyrics</span>
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Add timed lyrics that pop up line-by-line like Instagram Story music stickers!
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowBulkLyrics(!showBulkLyrics)}
+                    className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-rose-300 font-sans border border-white/10 transition-colors"
+                  >
+                    {showBulkLyrics ? 'Close Paste Box' : 'Paste Full Lyrics'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleAddLyricLine}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-xs text-rose-200 border border-rose-500/40 transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Line</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Bulk Paste Box */}
+              {showBulkLyrics && (
+                <div className="p-4 rounded-2xl bg-midnight-950/90 border border-rose-500/30 space-y-3">
+                  <label className="text-xs font-mono text-rose-300 block">
+                    Paste lyrics lines below (one line per row). Timestamps will auto-spread every 5 seconds:
+                  </label>
+                  <textarea
+                    rows={5}
+                    value={bulkLyricsText}
+                    onChange={(e) => setBulkLyricsText(e.target.value)}
+                    placeholder="Line 1: Two lovers sitting under pink skies...&#10;Line 2: Looking in your eyes, time stops...&#10;Line 3: You are my favourite feeling in the universe..."
+                    className="w-full p-3 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-rose-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleApplyBulkLyrics}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-violet-600 text-white text-xs font-sans uppercase tracking-wider font-medium shadow-glow-rose"
+                  >
+                    Apply Instagram Lyrics
+                  </button>
+                </div>
+              )}
+
+              {/* Lyric Lines List */}
+              <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                {(music.lyrics || []).map((lyric, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-2 p-2.5 rounded-xl bg-midnight-950/60 border border-white/10"
+                  >
+                    {/* Timestamp Pill */}
+                    <div className="flex items-center gap-1 shrink-0 w-24">
+                      <span className="text-[11px] font-mono text-slate-400">@</span>
+                      <input
+                        type="number"
+                        min={0}
+                        max={600}
+                        value={lyric.time}
+                        onChange={(e) => handleUpdateLyricTime(idx, parseFloat(e.target.value) || 0)}
+                        className="w-14 p-1 rounded-lg bg-black/40 border border-white/10 text-rose-300 text-xs font-mono text-center focus:outline-none"
+                      />
+                      <span className="text-[10px] font-mono text-slate-400">sec</span>
+                    </div>
+
+                    {/* Text Input */}
+                    <input
+                      type="text"
+                      value={lyric.text}
+                      onChange={(e) => handleUpdateLyricText(idx, e.target.value)}
+                      placeholder="Lyric text (e.g. In your golden hour...)"
+                      className="flex-1 p-2 rounded-lg bg-black/40 border border-white/10 text-white text-xs font-sans focus:outline-none focus:border-rose-400"
+                    />
+
+                    {/* Delete line */}
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteLyric(idx)}
+                      className="p-2 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
+                      title="Delete line"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
-          {/* Right Column: Live Mini Player Preview */}
-          <div className="space-y-3">
+          {/* Right Column: Live Mini Player & Instagram Story Sticker Preview */}
+          <div className="space-y-4">
             <label className="text-xs font-sans uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-rose-400" />
-              <span>Card Preview</span>
+              <span>Instagram Story Music Sticker</span>
             </label>
 
             <div className="vault-card rounded-2xl p-5 border border-rose-500/20 shadow-xl space-y-4 text-center">
-              <div className="relative aspect-square w-36 mx-auto rounded-xl overflow-hidden border border-white/10 bg-midnight-950 shadow-lg">
+              <div className="relative aspect-square w-36 mx-auto rounded-xl overflow-hidden border border-white/10 bg-midnight-950 shadow-lg group">
                 <img
                   src={music.coverUrl}
                   alt={music.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
                 />
               </div>
 
@@ -616,8 +763,28 @@ export const MusicEditor: React.FC = () => {
                 <p className="text-xs font-sans text-rose-300 font-light">{music.artist || 'Unknown Artist'}</p>
               </div>
 
-              <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-                <div className="w-1/3 h-full bg-rose-500" />
+              {/* Instagram Story Sticker Simulation */}
+              <div className="p-3 rounded-xl bg-black/60 border border-white/10 backdrop-blur-md text-left space-y-2">
+                <div className="flex items-center gap-2 text-[10px] font-mono text-slate-400">
+                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                  <span>Story Music Sticker</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 border border-white/20">
+                    <img src={music.coverUrl} alt="cover" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-white truncate">{music.title || 'Golden Hour'}</p>
+                    <p className="text-[10px] text-slate-400 truncate">{music.artist || 'JVKE'}</p>
+                  </div>
+                </div>
+
+                {/* Highlighted sample lyric */}
+                <div className="p-2 rounded-lg bg-white/5 border border-white/10 text-center">
+                  <p className="text-xs font-serif text-amber-200 italic font-medium">
+                    &ldquo;{(music.lyrics && music.lyrics[0]?.text) || 'Two lovers sitting under pink skies...'}&rdquo;
+                  </p>
+                </div>
               </div>
             </div>
           </div>

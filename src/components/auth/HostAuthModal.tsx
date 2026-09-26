@@ -144,15 +144,28 @@ export const HostAuthModal: React.FC = () => {
                   type="submit"
                   className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-violet-600 text-white font-sans text-xs tracking-wider uppercase font-medium shadow-glow-rose hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
-                  <span>Unlock Studio</span>
+                  <span>Unlock Admin</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
+
+              {/* Quick Admin Unlock 1-Click Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  authenticateHost('1402');
+                  setViewMode('studio');
+                }}
+                className="w-full py-2 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-200 text-xs font-mono transition-all flex items-center justify-center gap-2"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>Quick 1-Click Admin Unlock (PIN: 1402)</span>
+              </button>
             </form>
 
             <div className="pt-2 text-center border-t border-white/5">
-              <p className="text-[11px] text-slate-500 font-sans">
-                💡 Tip: You can access this gate anytime by triple-clicking the logo or using <code className="text-rose-300 bg-white/5 px-1 py-0.5 rounded">?host=1</code>.
+              <p className="text-[11px] text-slate-400 font-sans">
+                Admin Portal for adding photos, videos, favorite songs, and Instagram lyrics.
               </p>
             </div>
           </div>

@@ -55,18 +55,18 @@ export const HostStudio: React.FC = () => {
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
 
   const TABS: { id: StudioTab; label: string; icon: React.ReactNode }[] = [
-    { id: 'overview', label: 'Overview', icon: <LayoutDashboard className="w-4 h-4" /> },
-    { id: 'timeline', label: 'Our Story & Clock', icon: <Compass className="w-4 h-4" /> },
-    { id: 'scrapbook', label: 'Scrapbook', icon: <Image className="w-4 h-4" /> },
-    { id: 'chatgpt', label: 'LoveGPT AI Reveal', icon: <Sparkles className="w-4 h-4 text-emerald-400" /> },
-    { id: 'openWhen', label: '"Open When" Envelopes', icon: <Gift className="w-4 h-4 text-sky-400" /> },
+    { id: 'scrapbook', label: 'Photos & Scrapbook 📸', icon: <Image className="w-4 h-4 text-rose-400" /> },
+    { id: 'video', label: 'Romantic Videos 🎬', icon: <VideoIcon className="w-4 h-4 text-violet-400" /> },
+    { id: 'music', label: 'Favorite Song & Insta Lyrics 🎵', icon: <Music className="w-4 h-4 text-amber-400" /> },
+    { id: 'chatgpt', label: 'LoveGPT AI Reveal 🤖', icon: <Sparkles className="w-4 h-4 text-emerald-400" /> },
+    { id: 'openWhen', label: '"Open When" Letters 💌', icon: <Gift className="w-4 h-4 text-sky-400" /> },
+    { id: 'letter', label: 'Love Letter & Voice 📜', icon: <FileText className="w-4 h-4 text-pink-400" /> },
+    { id: 'overview', label: 'Admin Overview 📊', icon: <LayoutDashboard className="w-4 h-4" /> },
+    { id: 'timeline', label: 'Milestones & Clock', icon: <Compass className="w-4 h-4" /> },
     { id: 'loveNotes', label: 'Love Notes Deck', icon: <Gift className="w-4 h-4" /> },
     { id: 'bucketList', label: 'Future Bucket List', icon: <Star className="w-4 h-4" /> },
-    { id: 'music', label: 'Music & Reels Songs', icon: <Music className="w-4 h-4" /> },
-    { id: 'video', label: 'Edit Video', icon: <VideoIcon className="w-4 h-4" /> },
-    { id: 'typography', label: 'Typography', icon: <Type className="w-4 h-4" /> },
-    { id: 'letter', label: 'Love Letter & Voice', icon: <FileText className="w-4 h-4" /> },
     { id: 'theme', label: 'Theme & Sound', icon: <Palette className="w-4 h-4" /> },
+    { id: 'typography', label: 'Typography', icon: <Type className="w-4 h-4" /> },
     { id: 'questions', label: 'Questions (Optional)', icon: <HelpCircle className="w-4 h-4" /> },
   ];
 
