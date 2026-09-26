@@ -595,6 +595,83 @@ class VaultAudioEngine {
       // Ignored
     }
   }
+
+  // Futuristic Light Ray Beam Whoosh & Shimmer
+  public playLightRayBeam() {
+    if (this.isMuted) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(300, now);
+      osc.frequency.exponentialRampToValueAtTime(1400, now + 0.25);
+
+      gain.gain.setValueAtTime(0.02, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.36);
+    } catch {
+      // Ignored
+    }
+  }
+
+  // Cute pop sound when catching a falling heart in game
+  public playGameCatch() {
+    if (this.isMuted) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.1);
+
+      gain.gain.setValueAtTime(0.04, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.16);
+    } catch {
+      // Ignored
+    }
+  }
+
+  // Soft mechanical tick for wheel spin
+  public playWheelSpinTick() {
+    if (this.isMuted) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(900, now);
+
+      gain.gain.setValueAtTime(0.015, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.035);
+    } catch {
+      // Ignored
+    }
+  }
 }
 
 export const vaultAudio = new VaultAudioEngine();

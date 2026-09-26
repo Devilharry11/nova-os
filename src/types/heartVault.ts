@@ -249,6 +249,7 @@ export type CoupleScreen =
   | 'scrapbook' 
   | 'openWhen'
   | 'chatgpt'
+  | 'games'
   | 'loveNotes'
   | 'bucketList'
   | 'letter' 

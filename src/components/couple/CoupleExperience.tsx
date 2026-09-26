@@ -16,6 +16,7 @@ import { ScreenLetter } from './ScreenLetter';
 import { ScreenFinalSecret } from './ScreenFinalSecret';
 import { ScreenChatGpt } from './ScreenChatGpt';
 import { ScreenOpenWhen } from './ScreenOpenWhen';
+import { ScreenCoupleGames } from './ScreenCoupleGames';
 
 export const CoupleExperience: React.FC = () => {
   const { 
@@ -99,6 +100,20 @@ export const CoupleExperience: React.FC = () => {
     switch (currentScreen) {
       case 'welcome':
         return <ScreenWelcome />;
+      case 'chatgpt':
+        return <ScreenChatGpt />;
+      case 'scrapbook':
+        return <ScreenScrapbook />;
+      case 'music':
+        return <ScreenMusic />;
+      case 'games':
+        return <ScreenCoupleGames />;
+      case 'openWhen':
+        return <ScreenOpenWhen />;
+      case 'letter':
+        return <ScreenLetter />;
+      case 'final':
+        return <ScreenFinalSecret />;
       case 'questions':
         return <ScreenQuestions />;
       case 'timeline':
@@ -106,24 +121,12 @@ export const CoupleExperience: React.FC = () => {
       case 'portal':
       case 'constellation':
         return <ScreenHeartPortal />;
-      case 'scrapbook':
-        return <ScreenScrapbook />;
-      case 'chatgpt':
-        return <ScreenChatGpt />;
-      case 'openWhen':
-        return <ScreenOpenWhen />;
       case 'loveNotes':
         return <ScreenLoveNotes />;
       case 'bucketList':
         return <ScreenBucketList />;
-      case 'music':
-        return <ScreenMusic />;
       case 'video':
         return <ScreenVideo />;
-      case 'letter':
-        return <ScreenLetter />;
-      case 'final':
-        return <ScreenFinalSecret />;
       default:
         return <ScreenWelcome />;
     }
@@ -131,13 +134,13 @@ export const CoupleExperience: React.FC = () => {
 
   const SCREENS: { id: typeof currentScreen; label: string }[] = [
     { id: 'welcome', label: 'Welcome' },
-    { id: 'timeline', label: 'Our Story' },
-    { id: 'music', label: 'Vinyl Track' },
-    { id: 'scrapbook', label: 'Memories' },
     { id: 'chatgpt', label: 'LoveGPT AI' },
+    { id: 'scrapbook', label: 'Light Ray Memories' },
+    { id: 'music', label: 'Soundtrack Mixtape' },
+    { id: 'games', label: 'Couple Games' },
     { id: 'openWhen', label: 'Open When' },
     { id: 'letter', label: 'Letter & Voice' },
-    { id: 'final', label: 'Keepsake' },
+    { id: 'final', label: 'Thank You' },
   ];
 
   return (

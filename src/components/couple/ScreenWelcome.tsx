@@ -12,7 +12,7 @@ export const ScreenWelcome: React.FC = () => {
   const handleStart = () => {
     vaultAudio.playHeartCollect();
     setIsInstaPlaying(true);
-    setScreen('timeline');
+    setScreen('chatgpt');
   };
 
   return (

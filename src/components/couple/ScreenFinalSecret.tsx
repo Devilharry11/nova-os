@@ -69,20 +69,83 @@ export const ScreenFinalSecret: React.FC = () => {
         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 space-y-8 w-full"
       >
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-sans tracking-widest uppercase bg-rose-500/10 text-rose-300 border border-rose-500/20 shadow-glow-rose">
-          <Sparkles className="w-3.5 h-3.5 text-rose-400" />
-          <span>VAULT SEALED FOR ETERNITY</span>
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-sans tracking-widest uppercase bg-rose-500/10 text-rose-300 border border-rose-500/25 shadow-glow-rose">
+          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+          <span>FOREVER &amp; ALWAYS // {config.coupleNames}</span>
           <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-400/40" />
+        </div>
+
+        {/* 1. GRAND CENTERPIECE: "THANK YOU FOR BEING WITH ME" */}
+        <div className="space-y-3">
+          <motion.h1
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9 }}
+            className="text-4xl sm:text-6xl md:text-7xl font-serif text-white tracking-tight leading-tight"
+          >
+            Thank You For Being With Me
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.2 }}
+            className="text-base sm:text-xl text-rose-200/90 font-serif italic max-w-xl mx-auto"
+          >
+            &ldquo;In a world of billions of people, having you by my side is the greatest blessing I will ever know.&rdquo;
+          </motion.p>
+        </div>
+
+        {/* 2. 4 GRATITUDE PILLARS CARD */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-left">
+          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md space-y-1.5">
+            <div className="flex items-center gap-2 text-rose-300 font-sans text-xs font-bold uppercase tracking-wider">
+              <Heart className="w-3.5 h-3.5 fill-rose-500/40 text-rose-400" />
+              <span>For Your Patience</span>
+            </div>
+            <p className="text-xs text-slate-300 font-sans leading-relaxed">
+              For understanding my silence, calming my storms, and holding my hand when life gets overwhelming.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md space-y-1.5">
+            <div className="flex items-center gap-2 text-amber-300 font-sans text-xs font-bold uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>For Your Warm Smile</span>
+            </div>
+            <p className="text-xs text-slate-300 font-sans leading-relaxed">
+              For lighting up every room you walk into and making ordinary, quiet days feel like extraordinary magic.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md space-y-1.5">
+            <div className="flex items-center gap-2 text-violet-300 font-sans text-xs font-bold uppercase tracking-wider">
+              <Flame className="w-3.5 h-3.5 text-violet-400" />
+              <span>For Believing In Us</span>
+            </div>
+            <p className="text-xs text-slate-300 font-sans leading-relaxed">
+              For trusting our bond, laughing at our silly inside jokes, and dreaming about the future together.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md space-y-1.5">
+            <div className="flex items-center gap-2 text-pink-300 font-sans text-xs font-bold uppercase tracking-wider">
+              <Award className="w-3.5 h-3.5 text-pink-400" />
+              <span>For Being My Home</span>
+            </div>
+            <p className="text-xs text-slate-300 font-sans leading-relaxed">
+              Wherever in this world we go, as long as I am with you, I know I am safe, loved, and exactly where I belong.
+            </p>
+          </div>
         </div>
 
         {/* 3D Tilt Final Romantic Message Card */}
         <TiltCard maxTilt={6} scale={1.01} className="w-full">
-          <div className="vault-card rounded-3xl p-8 sm:p-12 border border-rose-500/30 shadow-glow-rose space-y-6">
-            <div className="w-16 h-16 mx-auto rounded-full bg-rose-500/20 border border-rose-400/40 flex items-center justify-center text-rose-400 shadow-[0_0_20px_rgba(224,90,136,0.5)]">
-              <Heart className="w-8 h-8 fill-rose-400/40 animate-pulse" />
+          <div className="vault-card rounded-3xl p-6 sm:p-10 border border-rose-500/30 shadow-glow-rose space-y-4">
+            <div className="w-14 h-14 mx-auto rounded-full bg-rose-500/20 border border-rose-400/40 flex items-center justify-center text-rose-400 shadow-[0_0_20px_rgba(224,90,136,0.5)]">
+              <Heart className="w-7 h-7 fill-rose-400/40 animate-pulse" />
             </div>
 
-            <h2 className="text-2xl sm:text-4xl font-serif text-white leading-snug">
+            <h2 className="text-xl sm:text-3xl font-serif text-white leading-snug">
               &ldquo;{config.letter.finalMessage}&rdquo;
             </h2>
 
@@ -103,8 +166,8 @@ export const ScreenFinalSecret: React.FC = () => {
               );
             })()}
 
-            <p className="text-sm text-slate-300/80 font-sans font-light">
-              Created with infinite tenderness &bull; {config.coupleNames}
+            <p className="text-xs sm:text-sm text-slate-300/80 font-sans font-light">
+              Sealed with eternal love &bull; {config.coupleNames}
             </p>
           </div>
         </TiltCard>

@@ -48,20 +48,22 @@ const CHAT_HISTORY = [
   { id: '5', title: 'Cutest giggles & habits database', active: false, time: 'Previous 30 Days' },
 ];
 
-const SUGGESTED_CHIPS = [
-  'Who is the most beautiful girl in the world?',
-  'Search Earth for the girl with the sweetest smile',
-  'Who holds the universal title of prettiest human?',
+const SCAN_STAGES = [
+  'Querying 8,142,918,400 global human profiles & beauty indices...',
+  'Evaluating facial symmetry, heartwarming smile, and radiance quotient...',
+  'Cross-referencing purest soul, gentle kindness, and mesmerizing eyes...',
+  'Match verified at 100.00% certainty — Single entity confirmed!'
 ];
 
 export const ScreenChatGpt: React.FC = () => {
   const { config, setScreen } = useExperience();
   const chatConfig = config.chatgpt;
 
-  const [inputQuery, setInputQuery] = useState(chatConfig.defaultQuery || 'Who is the most beautiful girl in the world?');
+  const [inputQuery, setInputQuery] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
   const [searchStep, setSearchStep] = useState<number>(0);
   // 0: idle, 1: scanning/thinking, 2: typing response, 3: verdict & photo reveal
+  const [loadingStatusIdx, setLoadingStatusIdx] = useState(0);
   const [typedVerdict, setTypedVerdict] = useState('');
   const [isThinkingOpen, setIsThinkingOpen] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -98,6 +100,39 @@ export const ScreenChatGpt: React.FC = () => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [searchStep, typedVerdict]);
 
+  // Loading status cycling during searchStep === 1
+  useEffect(() => {
+    if (searchStep === 1) {
+      setLoadingStatusIdx(0);
+      const stageTimer1 = setTimeout(() => {
+        setLoadingStatusIdx(1);
+        vaultAudio.playAiTypingTick();
+      }, 700);
+
+      const stageTimer2 = setTimeout(() => {
+        setLoadingStatusIdx(2);
+        vaultAudio.playAiTypingTick();
+      }, 1500);
+
+      const stageTimer3 = setTimeout(() => {
+        setLoadingStatusIdx(3);
+        vaultAudio.playAiTypingTick();
+      }, 2300);
+
+      const finishTimer = setTimeout(() => {
+        vaultAudio.playAiTypingTick();
+        setSearchStep(2);
+      }, 3100);
+
+      return () => {
+        clearTimeout(stageTimer1);
+        clearTimeout(stageTimer2);
+        clearTimeout(stageTimer3);
+        clearTimeout(finishTimer);
+      };
+    }
+  }, [searchStep]);
+
   const handleSend = (queryToSend?: string) => {
     const q = queryToSend || inputQuery;
     if (!q.trim()) return;
@@ -106,12 +141,6 @@ export const ScreenChatGpt: React.FC = () => {
     setHasSearched(true);
     setSearchStep(1);
     setIsThinkingOpen(true);
-
-    // Transition from thinking to typing
-    setTimeout(() => {
-      vaultAudio.playAiTypingTick();
-      setSearchStep(2);
-    }, 2200);
   };
 
   const handleReset = () => {
@@ -119,7 +148,8 @@ export const ScreenChatGpt: React.FC = () => {
     setHasSearched(false);
     setSearchStep(0);
     setTypedVerdict('');
-    setInputQuery(chatConfig.defaultQuery);
+    setInputQuery('');
+    setLoadingStatusIdx(0);
   };
 
   const handleCopy = () => {
@@ -131,8 +161,8 @@ export const ScreenChatGpt: React.FC = () => {
   };
 
   const handleContinue = () => {
-    vaultAudio.playWaxSealBreak();
-    setScreen('openWhen');
+    vaultAudio.playLightRayBeam();
+    setScreen('scrapbook');
   };
 
   return (
@@ -286,44 +316,28 @@ export const ScreenChatGpt: React.FC = () => {
         {/* Conversation Stream */}
         <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 space-y-8 max-w-3xl w-full mx-auto">
           {!hasSearched ? (
-            /* INITIAL STATE: ChatGPT Logo & Quick Suggestion Prompts */
+            /* INITIAL STATE: Clean, authentic ChatGPT Opening Screen */
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col items-center justify-center text-center space-y-8 my-auto min-h-[50vh]"
+              className="flex flex-col items-center justify-center text-center space-y-6 my-auto min-h-[50vh] px-4"
             >
-              <div className="w-14 h-14 rounded-full bg-[#2f2f2f] border border-rose-500/30 flex items-center justify-center shadow-lg shadow-rose-950/30">
-                <OpenAiLogo size="w-8 h-8" />
+              <div className="w-16 h-16 rounded-full bg-[#2f2f2f] border border-rose-500/30 flex items-center justify-center shadow-2xl shadow-rose-950/40">
+                <OpenAiLogo size="w-10 h-10" />
               </div>
 
-              <div className="space-y-2">
-                <h2 className="text-2xl sm:text-3xl font-serif text-white">
-                  What can I help you find today?
+              <div className="space-y-3">
+                <h2 className="text-2xl sm:text-4xl font-serif text-white">
+                  What would you like to ask ChatGPT?
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto font-light">
-                  Query the global beauty parameters, smile warmth index, and cosmic compatibility scores.
+                <p className="text-sm sm:text-base text-slate-400 max-w-lg mx-auto font-light leading-relaxed">
+                  Type any question below into the input prompt bar — such as <span className="text-rose-300 font-medium">&ldquo;who is the most beautiful girl in the world?&rdquo;</span> — to query the neural database.
                 </p>
               </div>
 
-              {/* Suggestions Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full max-w-2xl pt-2">
-                {SUGGESTED_CHIPS.map((chip, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      setInputQuery(chip);
-                      handleSend(chip);
-                    }}
-                    className="p-3.5 rounded-2xl bg-[#2f2f2f]/80 hover:bg-[#383838] border border-white/5 hover:border-rose-500/30 text-left transition-all group shadow-sm"
-                  >
-                    <p className="text-xs text-slate-200 group-hover:text-white font-medium line-clamp-2">
-                      &ldquo;{chip}&rdquo;
-                    </p>
-                    <span className="text-[10px] text-rose-300/80 mt-2 block font-mono">
-                      Ask ChatGPT &rarr;
-                    </span>
-                  </button>
-                ))}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-slate-400 font-mono">
+                <Sparkles className="w-3.5 h-3.5 text-rose-400" />
+                <span>ChatGPT 4o &bull; Ready for your query</span>
               </div>
             </motion.div>
           ) : (
@@ -356,7 +370,7 @@ export const ScreenChatGpt: React.FC = () => {
                           <Check className="w-3.5 h-3.5 text-emerald-400" />
                         )}
                         <span>
-                          {searchStep === 1 ? 'Thinking & scanning humanity...' : 'Thought for 3 seconds'}
+                          {searchStep === 1 ? 'Reasoning & scanning humanity...' : 'Thought for 3 seconds'}
                         </span>
                       </div>
                       {isThinkingOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
@@ -364,13 +378,54 @@ export const ScreenChatGpt: React.FC = () => {
 
                     {isThinkingOpen && (
                       <div className="px-3.5 pb-3 pt-1 text-[11px] font-mono text-slate-400 border-t border-white/5 space-y-1 bg-[#141414]">
-                        <p className="text-rose-300">&gt; Target parameter: &quot;Most beautiful girl on Earth&quot;</p>
-                        <p>&gt; Scanning global database: 8,142,000,000 individuals evaluated.</p>
+                        <p className="text-rose-300">&gt; Target parameter: &quot;{inputQuery}&quot;</p>
+                        <p>&gt; Scanning global database: 8,142,918,400 individuals evaluated.</p>
                         <p>&gt; Cross-referencing facial harmony, kindest soul, and warm contagious laugh.</p>
                         <p className="text-emerald-400">&gt; Outliers eliminated: 1 solitary match found with 100.00% confidence.</p>
                       </div>
                     )}
                   </div>
+
+                  {/* HIGH-TECH CYBER SCANNING & LOADING STATE */}
+                  {searchStep === 1 && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="p-5 rounded-2xl bg-gradient-to-br from-[#1c121e] to-[#120a16] border border-rose-500/30 space-y-4 shadow-xl"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="relative w-8 h-8 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center shrink-0">
+                          <Sparkles className="w-4 h-4 text-rose-300 animate-spin" />
+                          <div className="absolute inset-0 rounded-full border border-rose-400/50 animate-ping" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs sm:text-sm font-medium text-white truncate">
+                            {SCAN_STAGES[loadingStatusIdx]}
+                          </p>
+                          <p className="text-[11px] text-rose-300/80 font-mono">
+                            Neural Pipeline &bull; Stage {loadingStatusIdx + 1} of 4
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Loading Shimmer Box */}
+                      <div className="relative h-40 sm:h-48 rounded-xl overflow-hidden bg-white/5 border border-white/10 flex flex-col items-center justify-center text-center p-4">
+                        <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/30 flex items-center justify-center mb-2">
+                          <Crown className="w-6 h-6 text-amber-300 animate-pulse" />
+                        </div>
+                        <p className="text-xs font-mono text-slate-300">Searching global identity records...</p>
+                        <p className="text-[11px] font-mono text-slate-500 mt-1">Retrieving photograph and verification badge</p>
+                        
+                        <div className="w-48 h-1.5 bg-white/10 rounded-full mt-3 overflow-hidden">
+                          <motion.div
+                            className="h-full bg-gradient-to-r from-rose-500 via-rose-400 to-amber-400"
+                            animate={{ width: `${(loadingStatusIdx + 1) * 25}%` }}
+                            transition={{ duration: 0.5 }}
+                          />
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
 
                   {/* AI Response Stream */}
                   {searchStep >= 2 && (
@@ -470,7 +525,7 @@ export const ScreenChatGpt: React.FC = () => {
                               onClick={handleContinue}
                               className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-rose-500 via-rose-600 to-violet-600 text-white text-xs font-sans tracking-widest uppercase font-medium shadow-glow-rose hover:scale-[1.02] active:scale-[0.98] transition-all"
                             >
-                              <span>Next: &ldquo;Open When...&rdquo; Envelopes</span>
+                              <span>Next: Digital Light Ray Scrapbook</span>
                               <ArrowRight className="w-4 h-4" />
                             </button>
                           </div>
